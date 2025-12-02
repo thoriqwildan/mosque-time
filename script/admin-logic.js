@@ -95,10 +95,8 @@ function timeCalibration() {
   var diffMinutes = inputTotalMinutes - systemTotalMinutes;
 
   if (diffMinutes > 720) {
-    // User input pagi, sistem masih malam
     diffMinutes -= 1440;
   } else if (diffMinutes < -720) {
-    // User input malam, sistem sudah pagi
     diffMinutes += 1440;
   }
 
