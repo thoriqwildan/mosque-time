@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Admin Dashboard - Jam Masjid</title>
+    <link rel="stylesheet" href="styles/admin-style.css" />
+  </head>
+  <body>
+    <div class="container">
+      <div class="navbar">
+        <h2>Settings</h2>
+        <a class="left-icon" href="index.html">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="24"
+            height="24"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke-width="1.5"
+            stroke="currentColor"
+            class="size-6"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              d="M8.25 9V5.25A2.25 2.25 0 0 1 10.5 3h6a2.25 2.25 0 0 1 2.25 2.25v13.5A2.25 2.25 0 0 1 16.5 21h-6a2.25 2.25 0 0 1-2.25-2.25V15m-3 0-3-3m0 0 3-3m-3 3H15"
+            />
+          </svg>
+        </a>
+      </div>
+
+      <div class="card-container">
+        <div class="card">
+          <div class="card-inner">
+            <h2>Identitas Masjid</h2>
+
+            <label>Nama Masjid</label>
+            <input
+              type="text"
+              id="mosque_name"
+              placeholder="Contoh: Masjid Al-Hikmah"
+            />
+
+            <label>Alamat Singkat</label>
+            <input
+              type="text"
+              id="mosque_address"
+              placeholder="Contoh: Yogyakarta, DIY"
+            />
+
+            <label>Running Text (Info Berjalan)</label>
+            <textarea
+              id="running_text"
+              rows="3"
+              placeholder="Info untuk jamaah..."
+            ></textarea>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-inner">
+            <h2>Lokasi & Koordinat</h2>
+            <p style="font-size: 13px; color: red">
+              *Wajib diisi agar jadwal sholat akurat.
+            </p>
+
+            <label>Latitude (Garis Lintang)</label>
+            <input type="text" id="latitude" placeholder="-6.xxxx" />
+
+            <label>Longitude (Garis Bujur)</label>
+            <input type="text" id="longitude" placeholder="106.xxxx" />
+
+            <button class="btn-blue" onclick="autoDetect()">
+              Deteksi Lokasi Saya (GPS)
+            </button>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-inner">
+            <h2>Kalibrasi Jam</h2>
+            <p class="hint">
+              Gunakan ini jika jam di TV tidak cocok dengan HP.
+            </p>
+
+            <label>Jam di HP Anda Sekarang:</label>
+            <input type="time" id="manual_time" />
+            <button class="btn-blue" onclick="timeCalibration()">
+              Sinkronkan Jam
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <button onclick="saveAll()">SIMPAN SEMUA PENGATURAN</button>
+    </div>
+
+    <script src="script/admin-logic.js"></script>
+  </body>
+</html>

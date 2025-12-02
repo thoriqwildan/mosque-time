@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Masjid An-Nur</title>
+  </head>
+  <body>
+    <h1 id="jam-subuh">Hello World</h1>
+    <h1 id="jam-dzuhur">Hello World</h1>
+    <h1 id="jam-ashar">Hello World</h1>
+    <h1 id="jam-maghrib">Hello World</h1>
+    <h1 id="jam-isya">Hello World</h1>
+
+    <script src="script/adhan.js"></script>
+    <script>
+      var lat = localStorage.getItem("latitude");
+      var lng = localStorage.getItem("longitude");
+
+      // Kalau user belum setting (awal install), pakai default Jakarta dulu biar ga error
+      if (!lat || !lng) {
+        lat = -6.1754;
+        lng = 106.8272;
+      } else {
+        lat = parseFloat(lat);
+        lng = parseFloat(lng);
+      }
+
+      // 2. Siapkan Tanggal & Koreksi Jam
+      // Kita pakai koreksi waktu yang tadi kamu minta (Soft Correction)
+      var now = new Date();
+      var timeOffset = localStorage.getItem("time_offset");
+      if (timeOffset) {
+        now = new Date(now.getTime() + parseInt(timeOffset));
+      }
+
+      // 3. Konfigurasi Adhan.js
+      // PENTING: Untuk Indonesia biasanya pakai kriteria Singapore (MABIMS) atau MuslimWorldLeague
+      var coordinates = new adhan.Coordinates(lat, lng);
+      var params = adhan.CalculationMethod.Singapore();
+      params.madhab = adhan.Madhab.Shafi;
+
+      // 4. Hitung Jadwal!
+      var prayerTimes = new adhan.PrayerTimes(coordinates, now, params);
+
+      // 5. Tampilkan ke HTML (Pastikan ID di HTML sesuai)
+      // toLocaleTimeString 'id-ID' biar formatnya 24 jam (18:00) bukan AM/PM
+      document.getElementById("jam-subuh").innerHTML =
+        prayerTimes.fajr.toLocaleTimeString("id-ID", {
+          hour: "2-digit",
+          minute: "2-digit",
+        });
+      document.getElementById("jam-dzuhur").innerHTML =
+        prayerTimes.dhuhr.toLocaleTimeString("id-ID", {
+          hour: "2-digit",
+          minute: "2-digit",
+        });
+      document.getElementById("jam-ashar").innerHTML =
+        prayerTimes.asr.toLocaleTimeString("id-ID", {
+          hour: "2-digit",
+          minute: "2-digit",
+        });
+      document.getElementById("jam-maghrib").innerHTML =
+        prayerTimes.maghrib.toLocaleTimeString("id-ID", {
+          hour: "2-digit",
+          minute: "2-digit",
+        });
+      document.getElementById("jam-isya").innerHTML =
+        prayerTimes.isha.toLocaleTimeString("id-ID", {
+          hour: "2-digit",
+          minute: "2-digit",
+        });
+
+      // Tampilkan Jam Besar di tengah layar
+      document.getElementById("jam-utama").innerHTML =
+        now.toLocaleTimeString("id-ID");
+    </script>
+  </body>
+</html>

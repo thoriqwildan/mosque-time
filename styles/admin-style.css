@@ -1,0 +1,143 @@
+*,
+*:before,
+*:after {
+  -webkit-box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  box-sizing: border-box;
+}
+
+@font-face {
+  font-family: "inter";
+  src: url("../fonts/Inter_24pt-Medium.ttf");
+}
+
+body {
+  font-family: "inter", sans-serif, Arial, Helvetica, sans-serif;
+  background: #f8f8f8;
+  padding: 20px;
+}
+.container {
+  margin: 0 auto;
+}
+
+.navbar {
+  display: table;
+  width: 100%;
+  background-color: #fff;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.navbar h2 {
+  display: table-cell;
+  vertical-align: middle;
+  margin: 0;
+  color: #6f42c1;
+  text-decoration: underline;
+}
+
+.left-icon {
+  display: table-cell;
+  vertical-align: middle;
+  text-align: right;
+  color: #6f42c1;
+  width: 40px;
+}
+
+.card-container {
+  margin-right: -10px; /* Kompensasi margin card */
+  margin-left: -10px;
+
+  overflow: hidden;
+}
+
+.card {
+  float: left; /* Kunci layout jadul */
+  width: 33.33333%; /* 100% dibagi 3 */
+  padding: 10px;
+}
+
+.card-inner {
+  background: white;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+  min-height: 250px;
+}
+
+.card h2 {
+  margin-top: 0;
+  color: #333;
+  border-bottom: 1px solid #eee;
+  padding-bottom: 10px;
+}
+label {
+  display: block;
+  margin-top: 10px;
+  font-weight: bold;
+  color: #555;
+}
+input[type="text"],
+input[type="number"],
+textarea {
+  width: 100%;
+  padding: 10px;
+  margin-top: 5px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  box-sizing: border-box;
+}
+
+input[type="time"] {
+  width: 150px;
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-family: Arial, sans-serif;
+  font-size: 16px;
+  color: #333;
+  background-color: #f9f9f9;
+}
+
+input[type="time"]:focus {
+  outline: none;
+  border-color: #007bff;
+  box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+}
+
+button {
+  background: #6f42c1;
+  color: white;
+  border: none;
+  padding: 12px 20px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 16px;
+  margin-top: 15px;
+  width: 100%;
+}
+button:hover {
+  background: #643caf;
+}
+.btn-blue {
+  background: #007bff;
+}
+.btn-blue:hover {
+  background: #006cdf;
+}
+.hint {
+  font-size: 12px;
+  color: #888;
+  margin-top: 2px;
+}
+.btn-secondary {
+  background: #6c757d;
+  margin-top: 5px;
+}
+
+@media (max-width: 768px) {
+  .card {
+    width: 100%; /* Turun ke bawah jika layar kecil */
+  }
+}
