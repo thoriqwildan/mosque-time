@@ -25,6 +25,7 @@
   var currentPrayerData = null;
   var lastActivePrayer = "";
   var lastDay = -1;
+  var lastRunningText = "";
 
   function createNumbers() {
     for (var i = 1; i <= 12; i++) {
@@ -122,12 +123,16 @@
     rotateHand(els.min, minDeg);
     rotateHand(els.hour, hourDeg);
 
+    if (seconds % 10 === 0) {
+      updateRunningText();
+    }
+
     var currentDay = now.getDate();
 
     if (currentDay !== lastDay) {
       currentPrayerData = calculatePrayerTimes(now);
       lastDay = currentDay;
-      if (hours === 3 && minutes === 0 && seconds < 5) {
+      if (hours === 2 && minutes === 0 && seconds < 5) {
         window.location.reload();
       }
     }
@@ -163,14 +168,16 @@
   }
 
   function updateRunningText() {
-    var el = document.getElementById("marquee-text");
-
     var textData =
       localStorage.getItem("running_text") ||
       "Selamat Datang di Masjid An-Nur. Mohon luruskan dan rapatkan shaf.";
 
-    if (el.innerHTML != textData) {
-      el.innerHTML = textData;
+    if (textData !== lastRunningText) {
+      var el = document.getElementById("marquee-text");
+      if (el) {
+        el.innerHTML = textData;
+        lastRunningText = textData;
+      }
     }
   }
 
