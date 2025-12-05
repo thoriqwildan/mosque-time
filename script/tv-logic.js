@@ -8,6 +8,7 @@
     alamat: document.getElementById("alamat-masjid"),
     rows: {
       subuh: document.getElementById("row-subuh"),
+      shuruq: document.getElementById("row-shuruq"),
       dzuhur: document.getElementById("row-dzuhur"),
       ashar: document.getElementById("row-ashar"),
       maghrib: document.getElementById("row-maghrib"),
@@ -15,6 +16,7 @@
     },
     times: {
       subuh: document.getElementById("jam-subuh"),
+      shuruq: document.getElementById("jam-shuruq"),
       dzuhur: document.getElementById("jam-dzuhur"),
       ashar: document.getElementById("jam-ashar"),
       maghrib: document.getElementById("jam-maghrib"),
@@ -73,6 +75,10 @@
     var timeOpt = { hour: "2-digit", minute: "2-digit" };
 
     els.times.subuh.innerHTML = prayerTimes.fajr.toLocaleTimeString(
+      "id-ID",
+      timeOpt
+    );
+    els.times.shuruq.innerHTML = prayerTimes.sunrise.toLocaleTimeString(
       "id-ID",
       timeOpt
     );
@@ -149,6 +155,7 @@
 
         var map = {
           fajr: els.rows.subuh,
+          shuruq: els.rows.shuruq,
           dhuhr: els.rows.dzuhur,
           asr: els.rows.ashar,
           maghrib: els.rows.maghrib,
