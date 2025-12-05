@@ -15,6 +15,19 @@ function loadData() {
     if (running) document.getElementById("running_text").value = running;
     if (lat) document.getElementById("latitude").value = lat;
     if (lng) document.getElementById("longitude").value = lng;
+
+    document.getElementById("tune_subuh").value =
+      localStorage.getItem("tune_subuh") || 0;
+    document.getElementById("tune_shuruq").value =
+      localStorage.getItem("tune_shuruq") || 0;
+    document.getElementById("tune_dzuhur").value =
+      localStorage.getItem("tune_dzuhur") || 0;
+    document.getElementById("tune_ashar").value =
+      localStorage.getItem("tune_ashar") || 0;
+    document.getElementById("tune_maghrib").value =
+      localStorage.getItem("tune_maghrib") || 0;
+    document.getElementById("tune_isya").value =
+      localStorage.getItem("tune_isya") || 0;
   } catch (e) {
     alert("Warning: LocalStorage tidak jalan di browser ini!");
   }
@@ -26,6 +39,13 @@ function saveAll() {
   var running = document.getElementById("running_text").value;
   var lat = document.getElementById("latitude").value;
   var lng = document.getElementById("longitude").value;
+
+  var t_subuh = document.getElementById("tune_subuh").value || 0;
+  var t_shuruq = document.getElementById("tune_shuruq").value || 0;
+  var t_dzuhur = document.getElementById("tune_dzuhur").value || 0;
+  var t_ashar = document.getElementById("tune_ashar").value || 0;
+  var t_maghrib = document.getElementById("tune_maghrib").value || 0;
+  var t_isya = document.getElementById("tune_isya").value || 0;
 
   if (lat === "" || lng === "") {
     alert("⚠️ Koordinat Latitude & Longitude WAJIB diisi agar jadwal muncul!");
@@ -39,13 +59,16 @@ function saveAll() {
     localStorage.setItem("latitude", lat);
     localStorage.setItem("longitude", lng);
 
+    localStorage.setItem("tune_subuh", t_subuh);
+    localStorage.setItem("tune_shuruq", t_shuruq);
+    localStorage.setItem("tune_dzuhur", t_dzuhur);
+    localStorage.setItem("tune_ashar", t_ashar);
+    localStorage.setItem("tune_maghrib", t_maghrib);
+    localStorage.setItem("tune_isya", t_isya);
+
     alert("✅ Data Berhasil Disimpan!");
   } catch (e) {
-    if (e.name === "QuotaExceededError") {
-      alert("❌ Gagal simpan! Memori browser penuh. Hapus cache.");
-    } else {
-      alert("❌ Gagal simpan! Error: " + e.message);
-    }
+    alert("❌ Gagal simpan! Error: " + e.message);
   }
 }
 
@@ -58,9 +81,7 @@ function autoDetect() {
         alert("Lokasi ditemukan!");
       },
       function (error) {
-        alert(
-          "Gagal mendeteksi lokasi. Pastikan GPS aktif atau input manual saja."
-        );
+        alert("Gagal mendeteksi lokasi via GPS.");
       }
     );
   } else {
@@ -70,14 +91,8 @@ function autoDetect() {
 
 function timeCalibration() {
   var inputTime = document.getElementById("manual_time").value;
-
   if (!inputTime) {
-    alert("Isi format jam HH:MM (contoh: 14:30)");
-    return;
-  }
-
-  if (inputTime.indexOf(":") === -1) {
-    alert("Format salah! Gunakan titik dua (:), contoh 12:00");
+    alert("Isi format jam HH:MM");
     return;
   }
 
@@ -86,27 +101,12 @@ function timeCalibration() {
   var minutes = parseInt(parts[1]);
 
   var now = new Date();
-  var currentHours = now.getHours();
-  var currentMinutes = now.getMinutes();
+  var diffMinutes =
+    hours * 60 + minutes - (now.getHours() * 60 + now.getMinutes());
 
-  var inputTotalMinutes = hours * 60 + minutes;
-  var systemTotalMinutes = currentHours * 60 + currentMinutes;
+  if (diffMinutes > 720) diffMinutes -= 1440;
+  else if (diffMinutes < -720) diffMinutes += 1440;
 
-  var diffMinutes = inputTotalMinutes - systemTotalMinutes;
-
-  if (diffMinutes > 720) {
-    diffMinutes -= 1440;
-  } else if (diffMinutes < -720) {
-    diffMinutes += 1440;
-  }
-
-  var offsetMillis = diffMinutes * 60 * 1000;
-
-  localStorage.setItem("time_offset", offsetMillis);
-
-  alert(
-    "Sinkronisasi (Offset: " +
-      diffMinutes +
-      " menit). Refresh halaman utama jam."
-  );
+  localStorage.setItem("time_offset", diffMinutes * 60 * 1000);
+  alert("Sinkronisasi Berhasil! Offset: " + diffMinutes + " menit.");
 }

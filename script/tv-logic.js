@@ -63,15 +63,36 @@
     els.alamat.innerHTML = alamat;
   }
 
+  function addMinutes(date, minutes) {
+    return new Date(date.getTime() + minutes * 60000);
+  }
+
   function calculatePrayerTimes(dateObj) {
     var lat = parseFloat(localStorage.getItem("latitude")) || -6.1754;
     var lng = parseFloat(localStorage.getItem("longitude")) || 106.8272;
+
+    var tune = {
+      subuh: parseInt(localStorage.getItem("tune_subuh")) || 0,
+      shuruq: parseInt(localStorage.getItem("tune_shuruq")) || 0,
+      dzuhur: parseInt(localStorage.getItem("tune_dzuhur")) || 0,
+      ashar: parseInt(localStorage.getItem("tune_ashar")) || 0,
+      maghrib: parseInt(localStorage.getItem("tune_maghrib")) || 0,
+      isya: parseInt(localStorage.getItem("tune_isya")) || 0,
+    };
 
     var coordinates = new adhan.Coordinates(lat, lng);
     var params = adhan.CalculationMethod.Singapore();
     params.madhab = adhan.Madhab.Shafi;
 
     var prayerTimes = new adhan.PrayerTimes(coordinates, dateObj, params);
+
+    prayerTimes.fajr = addMinutes(prayerTimes.fajr, tune.subuh);
+    prayerTimes.sunrise = addMinutes(prayerTimes.sunrise, tune.shuruq);
+    prayerTimes.dhuhr = addMinutes(prayerTimes.dhuhr, tune.dzuhur);
+    prayerTimes.asr = addMinutes(prayerTimes.asr, tune.ashar);
+    prayerTimes.maghrib = addMinutes(prayerTimes.maghrib, tune.maghrib);
+    prayerTimes.isha = addMinutes(prayerTimes.isha, tune.isya);
+
     var timeOpt = { hour: "2-digit", minute: "2-digit" };
 
     els.times.subuh.innerHTML = prayerTimes.fajr.toLocaleTimeString(

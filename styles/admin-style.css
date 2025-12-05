@@ -46,16 +46,31 @@ body {
 }
 
 .card-container {
-  margin-right: -10px; /* Kompensasi margin card */
+  margin-right: -10px;
   margin-left: -10px;
 
-  overflow: hidden;
+  display: -webkit-box;
+  display: -moz-box;
+  display: -ms-flexbox;
+  display: -webkit-flex;
+  display: flex;
+
+  -webkit-flex-wrap: wrap;
+  -ms-flex-wrap: wrap;
+  flex-wrap: wrap;
+
+  -webkit-box-align: stretch;
+  -ms-flex-align: stretch;
+  -webkit-align-items: stretch;
+  align-items: stretch;
 }
 
 .card {
-  float: left; /* Kunci layout jadul */
-  width: 33.33333%; /* 100% dibagi 3 */
+  width: 33.33333%;
   padding: 10px;
+
+  display: -webkit-flex;
+  display: flex;
 }
 
 .card-inner {
@@ -63,7 +78,9 @@ body {
   padding: 20px;
   border-radius: 8px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
-  min-height: 250px;
+
+  height: 100%;
+  width: 100%;
 }
 
 .card h2 {
