@@ -155,6 +155,6 @@ button:hover {
 
 @media (max-width: 768px) {
   .card {
-    width: 100%; /* Turun ke bawah jika layar kecil */
+    width: 100%;
   }
 }

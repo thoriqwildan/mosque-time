@@ -22,6 +22,12 @@
       maghrib: document.getElementById("jam-maghrib"),
       isya: document.getElementById("jam-isya"),
     },
+    countdown: {
+      overlay: document.getElementById("countdown-overlay"),
+      title: document.getElementById("cd-title"),
+      timer: document.getElementById("cd-timer"),
+      nextName: document.getElementById("cd-next-prayer"),
+    },
   };
 
   var currentPrayerData = null;
@@ -29,25 +35,23 @@
   var lastDay = -1;
   var lastRunningText = "";
 
+  var COUNTDOWN_MINUTES = 10;
+
   function createNumbers() {
     for (var i = 1; i <= 12; i++) {
       var numContainer = document.createElement("div");
       numContainer.className = "clock-number";
-
       var numText = document.createElement("span");
       numText.innerHTML = i;
       var rotation = i * 30;
-
       var rotStyle = "rotate(" + rotation + "deg)";
       numContainer.style.transform = rotStyle;
       numContainer.style.webkitTransform = rotStyle;
       numContainer.style.mozTransform = rotStyle;
-
       var counterRotStyle = "rotate(" + -rotation + "deg)";
       numText.style.transform = counterRotStyle;
       numText.style.webkitTransform = counterRotStyle;
       numText.style.mozTransform = counterRotStyle;
-
       numContainer.appendChild(numText);
       els.face.insertBefore(numContainer, els.hour);
     }
@@ -58,7 +62,6 @@
     var alamat =
       localStorage.getItem("mosque_address") ||
       "Silakan setting data masjid di Admin Panel";
-
     els.masjid.innerHTML = nama;
     els.alamat.innerHTML = alamat;
   }
@@ -70,7 +73,6 @@
   function calculatePrayerTimes(dateObj) {
     var lat = parseFloat(localStorage.getItem("latitude")) || -6.1754;
     var lng = parseFloat(localStorage.getItem("longitude")) || 106.8272;
-
     var tune = {
       subuh: parseInt(localStorage.getItem("tune_subuh")) || 0,
       shuruq: parseInt(localStorage.getItem("tune_shuruq")) || 0,
@@ -94,7 +96,6 @@
     prayerTimes.isha = addMinutes(prayerTimes.isha, tune.isya);
 
     var timeOpt = { hour: "2-digit", minute: "2-digit" };
-
     els.times.subuh.innerHTML = prayerTimes.fajr.toLocaleTimeString(
       "id-ID",
       timeOpt
@@ -123,18 +124,22 @@
     return prayerTimes;
   }
 
+  function formatCountdown(ms) {
+    var totalSeconds = Math.floor(ms / 1000);
+    var m = Math.floor(totalSeconds / 60);
+    var s = totalSeconds % 60;
+    return (m < 10 ? "0" + m : m) + ":" + (s < 10 ? "0" + s : s);
+  }
+
   function tick() {
     var now = new Date();
-
     var offset = localStorage.getItem("time_offset");
-    if (offset) {
-      now = new Date(now.getTime() + parseInt(offset));
-    }
+    if (offset) now = new Date(now.getTime() + parseInt(offset));
 
+    // --- JAM ANALOG ---
     var seconds = now.getSeconds();
     var minutes = now.getMinutes();
     var hours = now.getHours();
-
     var secDeg = seconds * 6;
     var minDeg = minutes * 6 + seconds * 0.1;
     var hourDeg = hours * 30 + minutes * 0.5;
@@ -145,52 +150,82 @@
       el.style.webkitTransform = val;
       el.style.mozTransform = val;
     }
-
     rotateHand(els.sec, secDeg);
     rotateHand(els.min, minDeg);
     rotateHand(els.hour, hourDeg);
 
-    if (seconds % 10 === 0) {
-      updateRunningText();
-    }
+    if (seconds % 10 === 0) updateRunningText();
 
+    // --- LOGIKA JADWAL & COUNTDOWN ---
     var currentDay = now.getDate();
-
     if (currentDay !== lastDay) {
       currentPrayerData = calculatePrayerTimes(now);
       lastDay = currentDay;
-      if (hours === 2 && minutes === 0 && seconds < 5) {
-        window.location.reload();
-      }
+      if (hours === 2 && minutes === 0 && seconds < 5) window.location.reload();
     }
 
     if (currentPrayerData) {
       var next = currentPrayerData.nextPrayer(now);
 
-      if (next !== lastActivePrayer) {
-        for (var key in els.rows) {
-          if (els.rows.hasOwnProperty(key)) {
-            els.rows[key].className = "schedule-item";
+      var isCountdownMode = false;
+      var targetTime = null;
+      var nextNameDisplay = "";
+
+      if (next !== "none") {
+        if (next === "fajr") targetTime = currentPrayerData.fajr;
+        else if (next === "sunrise") targetTime = currentPrayerData.sunrise;
+        else if (next === "dhuhr") targetTime = currentPrayerData.dhuhr;
+        else if (next === "asr") targetTime = currentPrayerData.asr;
+        else if (next === "maghrib") targetTime = currentPrayerData.maghrib;
+        else if (next === "isha") targetTime = currentPrayerData.isha;
+
+        if (targetTime) {
+          var diff = targetTime - now;
+          var diffMinutes = diff / 1000 / 60;
+
+          if (diffMinutes <= COUNTDOWN_MINUTES && diffMinutes > 0) {
+            isCountdownMode = true;
+
+            els.countdown.timer.innerHTML = formatCountdown(diff);
+
+            var mapName = {
+              fajr: "SUBUH",
+              sunrise: "SYURUQ",
+              dhuhr: "DZUHUR",
+              asr: "ASHAR",
+              maghrib: "MAGHRIB",
+              isha: "ISYA",
+            };
+            els.countdown.nextName.innerHTML = mapName[next];
           }
         }
+      }
 
-        var map = {
-          fajr: els.rows.subuh,
-          shuruq: els.rows.shuruq,
-          dhuhr: els.rows.dzuhur,
-          asr: els.rows.ashar,
-          maghrib: els.rows.maghrib,
-          isha: els.rows.isya,
-          none: els.rows.subuh,
-        };
+      if (isCountdownMode) {
+        els.countdown.overlay.style.display = "flex";
+      } else {
+        els.countdown.overlay.style.display = "none";
 
-        if (map[next]) {
-          map[next].className = "schedule-item active";
-        } else if (next === "none") {
-          els.rows.subuh.className = "schedule-item active";
+        if (next !== lastActivePrayer) {
+          for (var key in els.rows) {
+            if (els.rows.hasOwnProperty(key))
+              els.rows[key].className = "schedule-item";
+          }
+          var map = {
+            fajr: els.rows.subuh,
+            shuruq: els.rows.shuruq,
+            sunrise: els.rows.shuruq,
+            dhuhr: els.rows.dzuhur,
+            asr: els.rows.ashar,
+            maghrib: els.rows.maghrib,
+            isha: els.rows.isya,
+            none: els.rows.subuh,
+          };
+          if (map[next]) map[next].className = "schedule-item active";
+          else if (next === "none")
+            els.rows.subuh.className = "schedule-item active";
+          lastActivePrayer = next;
         }
-
-        lastActivePrayer = next;
       }
     }
   }
@@ -198,8 +233,7 @@
   function updateRunningText() {
     var textData =
       localStorage.getItem("running_text") ||
-      "Selamat Datang di Masjid An-Nur. Mohon luruskan dan rapatkan shaf.";
-
+      "Selamat Datang di Masjid An-Nur...";
     if (textData !== lastRunningText) {
       var el = document.getElementById("marquee-text");
       if (el) {
@@ -212,7 +246,6 @@
   createNumbers();
   updateDataMasjid();
   updateRunningText();
-
   setInterval(tick, 1000);
   tick();
 })();
