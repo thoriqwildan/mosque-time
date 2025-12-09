@@ -1,0 +1,7 @@
+Fitur Web Masjid
+- Edit identitas masjid
+- Pakai library Adhan JS untuk jadwal sholat
+- Koreksi Jadwal Sholat (baru!)
+- Ganti display 10 menit sebelum adzan (baru!)
+- Countdown adzan dibuat dinamis (baru!)
+- Responsive untuk vertikal display (baru!) #belum sempurna

@@ -17,7 +17,6 @@
             viewBox="0 0 24 24"
             stroke-width="1.5"
             stroke="currentColor"
-            class="size-6"
           >
             <path
               stroke-linecap="round"
@@ -32,7 +31,6 @@
         <div class="card">
           <div class="card-inner">
             <h2>Identitas Masjid</h2>
-
             <label>Nama Masjid</label>
             <input
               type="text"
@@ -62,7 +60,6 @@
             <p style="font-size: 13px; color: red">
               *Wajib diisi agar jadwal sholat akurat.
             </p>
-
             <label>Latitude (Garis Lintang)</label>
             <input type="text" id="latitude" placeholder="-6.xxxx" />
 
@@ -79,34 +76,31 @@
           <div class="card-inner">
             <h2>Koreksi Jadwal (Ihtiyati)</h2>
             <p class="hint">
-              Isi angka untuk menambah/mengurangi menit. <br />
-              Contoh: <b>2</b> (tambah 2 menit), <b>-1</b> (kurangi 1 menit).
+              Isi angka (menit). Contoh: <b>2</b> (tambah), <b>-1</b> (kurang).
             </p>
 
-            <div
-              style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px"
-            >
-              <div>
+            <div class="row-inputs">
+              <div class="col-half">
                 <label>Subuh</label>
                 <input type="number" id="tune_subuh" placeholder="0" />
               </div>
-              <div>
+              <div class="col-half">
                 <label>Shuruq</label>
                 <input type="number" id="tune_shuruq" placeholder="0" />
               </div>
-              <div>
+              <div class="col-half">
                 <label>Dzuhur</label>
                 <input type="number" id="tune_dzuhur" placeholder="0" />
               </div>
-              <div>
+              <div class="col-half">
                 <label>Ashar</label>
                 <input type="number" id="tune_ashar" placeholder="0" />
               </div>
-              <div>
+              <div class="col-half">
                 <label>Maghrib</label>
                 <input type="number" id="tune_maghrib" placeholder="0" />
               </div>
-              <div>
+              <div class="col-half">
                 <label>Isya</label>
                 <input type="number" id="tune_isya" placeholder="0" />
               </div>
@@ -116,13 +110,22 @@
 
         <div class="card">
           <div class="card-inner">
-            <h2>Kalibrasi Jam</h2>
-            <p class="hint">
-              Gunakan ini jika jam di TV tidak cocok dengan HP.
-            </p>
+            <h2>Kalibrasi & Setting</h2>
+            <label>Mulai Countdown Adzan (Menit)</label>
+            <input
+              type="number"
+              id="countdown_duration"
+              placeholder="10"
+              value="10"
+            />
 
-            <label>Jam di HP Anda Sekarang:</label>
-            <input type="time" id="manual_time" />
+            <hr
+              style="border: 0; border-top: 1px dashed #ccc; margin: 20px 0"
+            />
+
+            <p class="hint">Jika jam di TV tidak cocok dengan HP:</p>
+            <label>Jam di HP Anda:</label>
+            <input type="time" id="manual_time" placeholder="HH:MM" />
             <button class="btn-blue" onclick="timeCalibration()">
               Sinkronkan Jam
             </button>
@@ -130,7 +133,9 @@
         </div>
       </div>
 
-      <button onclick="saveAll()">SIMPAN SEMUA PENGATURAN</button>
+      <button class="btn-save" onclick="saveAll()">
+        SIMPAN SEMUA PENGATURAN
+      </button>
     </div>
 
     <script src="script/admin-logic.js"></script>

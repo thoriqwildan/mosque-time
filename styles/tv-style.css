@@ -22,6 +22,17 @@ body {
   box-sizing: border-box;
 }
 
+.main-wrapper {
+  width: 100%;
+  height: 100%;
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: flex;
+
+  -webkit-flex-direction: row;
+  flex-direction: row;
+}
+
 .bg-left {
   position: relative;
   width: 30%;
@@ -333,9 +344,19 @@ body {
   background-color: #0f172a;
   z-index: 10000;
 
+  display: -webkit-box;
+  display: -webkit-flex;
   display: flex;
-  align-items: center;
+
+  -webkit-box-pack: center;
+  -webkit-justify-content: center;
   justify-content: center;
+
+  -webkit-box-align: center;
+  -webkit-align-items: center;
+  align-items: center;
+
+  -webkit-flex-direction: column;
   flex-direction: column;
 
   animation: fadeIn 0.5s ease-in-out;
@@ -396,5 +417,170 @@ body {
   }
   100% {
     transform: translate(-100%, 0);
+  }
+}
+
+@media screen and (orientation: portrait) {
+  .main-wrapper {
+    -webkit-flex-direction: column;
+    flex-direction: column;
+  }
+
+  .clock-overlay {
+    display: none !important;
+  }
+
+  .bg-right {
+    width: 100%;
+    height: 70%; /* 40% Layar untuk Gambar/Judul */
+    float: none;
+    -webkit-order: 1;
+    order: 1;
+
+    display: -webkit-flex;
+    display: flex;
+    -webkit-flex-direction: column;
+    flex-direction: column;
+  }
+
+  .title-card {
+    height: 25%;
+    width: 100%;
+    background: #1e283b;
+    border-bottom: 4px solid #ffd700;
+  }
+
+  .title h1 {
+    font-size: 10vw;
+    text-align: center;
+  }
+  .title p {
+    font-size: 3.5vw;
+    text-align: center;
+    margin-bottom: 5px;
+  }
+  .title {
+    text-align: center;
+    padding: 10px;
+    width: 100%;
+    display: block;
+  }
+  .icon-cell {
+    display: none;
+  }
+
+  .bg-card {
+    height: 75%;
+    width: 100%;
+    background-size: cover;
+    background-position: center;
+  }
+
+  .bg-left {
+    width: 100%;
+    height: 30%; /* 60% Layar untuk Jadwal */
+    float: none;
+    background-color: #0f172a;
+    -webkit-order: 2;
+    order: 2;
+  }
+
+  .bg-left::after {
+    display: none;
+  }
+
+  .schedule-container {
+    padding-bottom: 4vh; /* Ruang buat running text */
+
+    display: -webkit-flex;
+    display: flex;
+    -webkit-flex-wrap: wrap;
+    flex-wrap: wrap;
+    -webkit-align-content: stretch;
+    align-content: stretch;
+  }
+
+  .schedule-item {
+    width: 33.33%;
+
+    height: 50%;
+
+    border-right: 1px solid rgba(255, 255, 255, 0.1);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    padding: 10px;
+
+    display: -webkit-flex;
+    display: flex;
+    -webkit-align-items: center;
+    align-items: center;
+    -webkit-justify-content: center;
+    justify-content: center;
+  }
+
+  .schedule-text {
+    display: block;
+    text-align: center;
+    width: 100%;
+  }
+
+  .schedule-text span {
+    display: block;
+    font-size: 2.3vh;
+    color: #94a3b8;
+    margin-bottom: 5px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+
+  .schedule-text h1 {
+    display: block;
+    font-size: 5vh;
+    line-height: 1;
+  }
+
+  .schedule-item.active {
+    background-color: #ffd700;
+    border: none;
+    padding: 10px;
+
+    box-shadow: 0 0 20px rgba(255, 215, 0, 0.4);
+    z-index: 2;
+    transform: scale(1.05);
+  }
+
+  .schedule-item.active .schedule-text span {
+    color: #000;
+    font-weight: bold;
+  }
+  .schedule-item.active .schedule-text h1 {
+    color: #000;
+    text-shadow: none;
+  }
+
+  .marquee-container {
+    bottom: 0;
+    height: 4vh;
+    background: #000;
+    border-top: 4px solid #ffd700;
+
+    z-index: 100;
+  }
+
+  .marquee-text {
+    font-size: 2.8vh;
+    line-height: 8vh;
+    padding-left: 100%;
+  }
+
+  #cd-timer {
+    font-size: 25vw;
+  }
+  #cd-title {
+    font-size: 5vw;
+    margin-bottom: 20px;
+  }
+  #cd-next-prayer {
+    font-size: 10vw;
+    margin-top: 20px;
   }
 }

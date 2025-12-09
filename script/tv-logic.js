@@ -34,8 +34,10 @@
   var lastActivePrayer = "";
   var lastDay = -1;
   var lastRunningText = "";
+  var lastCountdownState = false;
 
-  var COUNTDOWN_MINUTES = 10;
+  var COUNTDOWN_MINUTES =
+    parseInt(localStorage.getItem("countdown_duration")) || 10;
 
   function createNumbers() {
     for (var i = 1; i <= 12; i++) {
@@ -196,16 +198,28 @@
               maghrib: "MAGHRIB",
               isha: "ISYA",
             };
-            els.countdown.nextName.innerHTML = mapName[next];
+            var nameNow = mapName[next];
+            if (els.countdown.nextName.innerHTML !== nameNow) {
+              els.countdown.nextName.innerHTML = nameNow;
+            }
           }
         }
       }
 
-      if (isCountdownMode) {
-        els.countdown.overlay.style.display = "flex";
-      } else {
-        els.countdown.overlay.style.display = "none";
+      if (isCountdownMode !== lastCountdownState) {
+        if (isCountdownMode) {
+          els.countdown.overlay.style.display = "flex";
+          els.countdown.overlay.style.display = "";
+          els.countdown.overlay.classList.add("show-flex");
 
+          els.countdown.overlay.style.display = "flex";
+        } else {
+          els.countdown.overlay.style.display = "none";
+        }
+        lastCountdownState = isCountdownMode;
+      }
+
+      if (!isCountdownMode) {
         if (next !== lastActivePrayer) {
           for (var key in els.rows) {
             if (els.rows.hasOwnProperty(key))
@@ -224,6 +238,7 @@
           if (map[next]) map[next].className = "schedule-item active";
           else if (next === "none")
             els.rows.subuh.className = "schedule-item active";
+
           lastActivePrayer = next;
         }
       }
