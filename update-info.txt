@@ -5,3 +5,5 @@ Fitur Web Masjid
 - Ganti display 10 menit sebelum adzan (baru!)
 - Countdown adzan dibuat dinamis (baru!)
 - Responsive untuk vertikal display (baru!) #belum sempurna
+
+- Kalender Hijriah (belum)
