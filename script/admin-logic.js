@@ -1,133 +1,159 @@
 window.onload = function () {
-  loadData();
+  loadDataFromServer();
 };
 
-function loadData() {
-  try {
-    var name = localStorage.getItem("mosque_name");
-    var address = localStorage.getItem("mosque_address");
-    var running = localStorage.getItem("running_text");
-    var lat = localStorage.getItem("latitude");
-    var lng = localStorage.getItem("longitude");
+function ajax(url, options, successCallback, errorCallback) {
+  if (typeof options === "function") {
+    errorCallback = successCallback;
+    successCallback = options;
+    options = null;
+  }
 
-    if (name) document.getElementById("mosque_name").value = name;
-    if (address) document.getElementById("mosque_address").value = address;
-    if (running) document.getElementById("running_text").value = running;
-    if (lat) document.getElementById("latitude").value = lat;
-    if (lng) document.getElementById("longitude").value = lng;
+  var xhr = new XMLHttpRequest();
+  var method = (options && options.method) || "GET";
+  xhr.open(method, url, true);
 
-    // Helper function biar kodenya pendek
-    function setVal(id, key) {
-      var val = localStorage.getItem(key);
-      // Default ke "0" jika null
-      document.getElementById(id).value = val ? val : 0;
+  if (options && options.headers) {
+    for (var k in options.headers) {
+      xhr.setRequestHeader(k, options.headers[k]);
     }
+  }
 
-    setVal("tune_subuh", "tune_subuh");
-    setVal("tune_shuruq", "tune_shuruq");
-    setVal("tune_dzuhur", "tune_dzuhur");
-    setVal("tune_ashar", "tune_ashar");
-    setVal("tune_maghrib", "tune_maghrib");
-    setVal("tune_isya", "tune_isya");
+  xhr.onreadystatechange = function () {
+    if (xhr.readyState === 4) {
+      if (xhr.status >= 200 && xhr.status < 400) {
+        var response = xhr.responseText;
+        try {
+          response = JSON.parse(response);
+        } catch (e) {}
+        if (successCallback) successCallback(response);
+      } else {
+        if (errorCallback) errorCallback(xhr);
+      }
+    }
+  };
+  xhr.send(options && options.body ? options.body : null);
+}
 
-    document.getElementById("countdown_duration").value =
-      localStorage.getItem("countdown_duration") || 10;
-  } catch (e) {
-    alert("Warning: Akses LocalStorage bermasalah.");
+function loadDataFromServer() {
+  ajax(
+    "api.php?t=" + new Date().getTime(),
+    function (data) {
+      setValue("mosque_name", data.mosque_name);
+      setValue("mosque_address", data.mosque_address);
+      setValue("running_text", data.running_text);
+      setValue("latitude", data.latitude);
+      setValue("longitude", data.longitude);
+
+      setValue("tune_subuh", data.tune_subuh);
+      setValue("tune_shuruq", data.tune_shuruq);
+      setValue("tune_dzuhur", data.tune_dzuhur);
+      setValue("tune_ashar", data.tune_ashar);
+      setValue("tune_maghrib", data.tune_maghrib);
+      setValue("tune_isya", data.tune_isya);
+
+      setValue("countdown_duration", data.countdown_duration);
+
+      window.currentServerOffset = data.time_offset || 0;
+    },
+    function (error) {
+      console.error("Error:", error);
+      alert("Gagal mengambil data dari board.");
+    }
+  );
+}
+
+function setValue(id, val) {
+  if (document.getElementById(id)) {
+    document.getElementById(id).value = val !== undefined ? val : "";
   }
 }
 
 function saveAll() {
-  var name = document.getElementById("mosque_name").value;
-  var address = document.getElementById("mosque_address").value;
-  var running = document.getElementById("running_text").value;
-  var lat = document.getElementById("latitude").value;
-  var lng = document.getElementById("longitude").value;
-  var cd_duration = document.getElementById("countdown_duration").value || 10;
+  var data = {
+    mosque_name: document.getElementById("mosque_name").value,
+    mosque_address: document.getElementById("mosque_address").value,
+    running_text: document.getElementById("running_text").value,
+    latitude: document.getElementById("latitude").value,
+    longitude: document.getElementById("longitude").value,
 
-  if (lat === "" || lng === "") {
-    alert("⚠️ Koordinat Latitude & Longitude WAJIB diisi!");
-    return;
-  }
+    tune_subuh: document.getElementById("tune_subuh").value,
+    tune_shuruq: document.getElementById("tune_shuruq").value,
+    tune_dzuhur: document.getElementById("tune_dzuhur").value,
+    tune_ashar: document.getElementById("tune_ashar").value,
+    tune_maghrib: document.getElementById("tune_maghrib").value,
+    tune_isya: document.getElementById("tune_isya").value,
 
-  // Ambil value tune, default ke "0" jika kosong
-  function getVal(id) {
-    var val = document.getElementById(id).value;
-    return val === "" ? "0" : val;
-  }
+    countdown_duration: document.getElementById("countdown_duration").value,
 
-  try {
-    localStorage.setItem("mosque_name", name);
-    localStorage.setItem("mosque_address", address);
-    localStorage.setItem("running_text", running);
-    localStorage.setItem("latitude", lat);
-    localStorage.setItem("longitude", lng);
+    time_offset: window.currentServerOffset || 0,
+  };
 
-    localStorage.setItem("tune_subuh", getVal("tune_subuh"));
-    localStorage.setItem("tune_shuruq", getVal("tune_shuruq"));
-    localStorage.setItem("tune_dzuhur", getVal("tune_dzuhur"));
-    localStorage.setItem("tune_ashar", getVal("tune_ashar"));
-    localStorage.setItem("tune_maghrib", getVal("tune_maghrib"));
-    localStorage.setItem("tune_isya", getVal("tune_isya"));
-
-    localStorage.setItem("countdown_duration", cd_duration);
-
-    alert("✅ Data Berhasil Disimpan!");
-  } catch (e) {
-    alert("❌ Gagal simpan! Error: " + e.message);
-  }
+  ajax(
+    "api.php",
+    {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(data),
+    },
+    function (result) {
+      if (result.status === "success") {
+        alert("✅ Data Berhasil Disimpan ke Board!");
+      } else {
+        alert("❌ Gagal: " + result.message);
+      }
+    },
+    function (error) {
+      alert("❌ Error koneksi ke server.");
+    }
+  );
 }
 
 function autoDetect() {
   if (navigator.geolocation) {
     navigator.geolocation.getCurrentPosition(
       function (position) {
-        // Pembulatan 5 digit desimal agar rapi
         document.getElementById("latitude").value =
           position.coords.latitude.toFixed(5);
         document.getElementById("longitude").value =
           position.coords.longitude.toFixed(5);
-        alert("Lokasi ditemukan!");
+        alert("Lokasi ditemukan! Jangan lupa klik Simpan.");
       },
       function (error) {
-        alert("Gagal mendeteksi lokasi. Pastikan GPS aktif / Izin diberikan.");
+        alert("Gagal mendeteksi lokasi. Pastikan GPS aktif.");
       }
     );
   } else {
-    alert("Browser ini tidak mendukung Geolocation.");
+    alert("Browser tidak mendukung Geolocation.");
   }
 }
 
 function timeCalibration() {
   var inputTime = document.getElementById("manual_time").value;
   if (!inputTime) {
-    alert("Isi format jam HH:MM");
+    alert("Isi jam dulu.");
     return;
   }
 
-  // Support input manual tanpa time-picker (untuk browser lama)
-  // User mungkin ngetik '14.30' atau '14:30'
   inputTime = inputTime.replace(".", ":");
-
-  if (inputTime.indexOf(":") === -1) {
-    alert("Format salah. Gunakan titik dua (:). Contoh 14:30");
-    return;
-  }
-
   var parts = inputTime.split(":");
-  var hours = parseInt(parts[0]);
-  var minutes = parseInt(parts[1]);
+  if (parts.length !== 2) return alert("Format salah");
 
   var now = new Date();
   var currentTotalMinutes = now.getHours() * 60 + now.getMinutes();
-  var inputTotalMinutes = hours * 60 + minutes;
+  var inputTotalMinutes = parseInt(parts[0]) * 60 + parseInt(parts[1]);
 
   var diffMinutes = inputTotalMinutes - currentTotalMinutes;
 
-  // Handle midnight crossing (beda hari)
   if (diffMinutes > 720) diffMinutes -= 1440;
   else if (diffMinutes < -720) diffMinutes += 1440;
 
-  localStorage.setItem("time_offset", diffMinutes * 60 * 1000);
-  alert("Sinkronisasi Berhasil! Offset: " + diffMinutes + " menit.");
+  var offsetMs = diffMinutes * 60 * 1000;
+  window.currentServerOffset = offsetMs;
+
+  alert(
+    "Sinkronisasi dihitung! Offset: " +
+      diffMinutes +
+      " menit. \nKLIK 'SIMPAN SEMUA PENGATURAN' AGAR PERMANEN."
+  );
 }

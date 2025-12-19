@@ -1,4 +1,20 @@
 (function () {
+  var config = {
+    mosque_name: "Loading...",
+    mosque_address: "...",
+    running_text: "",
+    latitude: -6.1754,
+    longitude: 106.8272,
+    tune_subuh: 0,
+    tune_shuruq: 0,
+    tune_dzuhur: 0,
+    tune_ashar: 0,
+    tune_maghrib: 0,
+    tune_isya: 0,
+    countdown_duration: 10,
+    time_offset: 0,
+  };
+
   var els = {
     hour: document.getElementById("hour-hand"),
     min: document.getElementById("min-hand"),
@@ -36,8 +52,53 @@
   var lastRunningText = "";
   var lastCountdownState = false;
 
-  var COUNTDOWN_MINUTES =
-    parseInt(localStorage.getItem("countdown_duration")) || 10;
+  function ajax(url, successCallback, errorCallback) {
+    var xhr = new XMLHttpRequest();
+    xhr.open("GET", url, true);
+    xhr.onreadystatechange = function () {
+      if (xhr.readyState === 4) {
+        if (xhr.status >= 200 && xhr.status < 400) {
+          try {
+            var data = JSON.parse(xhr.responseText);
+            if (successCallback) successCallback(data);
+          } catch (e) {
+            console.error("JSON Parse error", e);
+            if (errorCallback) errorCallback(e);
+          }
+        } else {
+          if (errorCallback) errorCallback(xhr);
+        }
+      }
+    };
+    xhr.send();
+  }
+
+  function formatTime(d) {
+    var h = d.getHours();
+    var m = d.getMinutes();
+    return (h < 10 ? "0" + h : h) + ":" + (m < 10 ? "0" + m : m);
+  }
+
+  function fetchSettings() {
+    ajax(
+      "api.php?t=" + new Date().getTime(),
+      function (data) {
+        config = data;
+        config.latitude = parseFloat(data.latitude);
+        config.longitude = parseFloat(data.longitude);
+        config.countdown_duration = parseInt(data.countdown_duration);
+        config.time_offset = parseInt(data.time_offset) || 0;
+
+        updateDataMasjid();
+        updateRunningText();
+
+        currentPrayerData = calculatePrayerTimes(new Date());
+      },
+      function (err) {
+        console.error("Gagal koneksi ke server lokal:", err);
+      }
+    );
+  }
 
   function createNumbers() {
     for (var i = 1; i <= 12; i++) {
@@ -46,26 +107,16 @@
       var numText = document.createElement("span");
       numText.innerHTML = i;
       var rotation = i * 30;
-      var rotStyle = "rotate(" + rotation + "deg)";
-      numContainer.style.transform = rotStyle;
-      numContainer.style.webkitTransform = rotStyle;
-      numContainer.style.mozTransform = rotStyle;
-      var counterRotStyle = "rotate(" + -rotation + "deg)";
-      numText.style.transform = counterRotStyle;
-      numText.style.webkitTransform = counterRotStyle;
-      numText.style.mozTransform = counterRotStyle;
+      numContainer.style.transform = "rotate(" + rotation + "deg)";
+      numText.style.transform = "rotate(" + -rotation + "deg)";
       numContainer.appendChild(numText);
       els.face.insertBefore(numContainer, els.hour);
     }
   }
 
   function updateDataMasjid() {
-    var nama = localStorage.getItem("mosque_name") || "Masjid An-Nur";
-    var alamat =
-      localStorage.getItem("mosque_address") ||
-      "Silakan setting data masjid di Admin Panel";
-    els.masjid.innerHTML = nama;
-    els.alamat.innerHTML = alamat;
+    els.masjid.innerHTML = config.mosque_name;
+    els.alamat.innerHTML = config.mosque_address;
   }
 
   function addMinutes(date, minutes) {
@@ -73,55 +124,43 @@
   }
 
   function calculatePrayerTimes(dateObj) {
-    var lat = parseFloat(localStorage.getItem("latitude")) || -6.1754;
-    var lng = parseFloat(localStorage.getItem("longitude")) || 106.8272;
-    var tune = {
-      subuh: parseInt(localStorage.getItem("tune_subuh")) || 0,
-      shuruq: parseInt(localStorage.getItem("tune_shuruq")) || 0,
-      dzuhur: parseInt(localStorage.getItem("tune_dzuhur")) || 0,
-      ashar: parseInt(localStorage.getItem("tune_ashar")) || 0,
-      maghrib: parseInt(localStorage.getItem("tune_maghrib")) || 0,
-      isya: parseInt(localStorage.getItem("tune_isya")) || 0,
-    };
-
-    var coordinates = new adhan.Coordinates(lat, lng);
+    var coordinates = new adhan.Coordinates(config.latitude, config.longitude);
     var params = adhan.CalculationMethod.Singapore();
     params.madhab = adhan.Madhab.Shafi;
 
     var prayerTimes = new adhan.PrayerTimes(coordinates, dateObj, params);
 
-    prayerTimes.fajr = addMinutes(prayerTimes.fajr, tune.subuh);
-    prayerTimes.sunrise = addMinutes(prayerTimes.sunrise, tune.shuruq);
-    prayerTimes.dhuhr = addMinutes(prayerTimes.dhuhr, tune.dzuhur);
-    prayerTimes.asr = addMinutes(prayerTimes.asr, tune.ashar);
-    prayerTimes.maghrib = addMinutes(prayerTimes.maghrib, tune.maghrib);
-    prayerTimes.isha = addMinutes(prayerTimes.isha, tune.isya);
+    prayerTimes.fajr = addMinutes(
+      prayerTimes.fajr,
+      parseInt(config.tune_subuh) || 0
+    );
+    prayerTimes.sunrise = addMinutes(
+      prayerTimes.sunrise,
+      parseInt(config.tune_shuruq) || 0
+    );
+    prayerTimes.dhuhr = addMinutes(
+      prayerTimes.dhuhr,
+      parseInt(config.tune_dzuhur) || 0
+    );
+    prayerTimes.asr = addMinutes(
+      prayerTimes.asr,
+      parseInt(config.tune_ashar) || 0
+    );
+    prayerTimes.maghrib = addMinutes(
+      prayerTimes.maghrib,
+      parseInt(config.tune_maghrib) || 0
+    );
+    prayerTimes.isha = addMinutes(
+      prayerTimes.isha,
+      parseInt(config.tune_isya) || 0
+    );
 
-    var timeOpt = { hour: "2-digit", minute: "2-digit" };
-    els.times.subuh.innerHTML = prayerTimes.fajr.toLocaleTimeString(
-      "id-ID",
-      timeOpt
-    );
-    els.times.shuruq.innerHTML = prayerTimes.sunrise.toLocaleTimeString(
-      "id-ID",
-      timeOpt
-    );
-    els.times.dzuhur.innerHTML = prayerTimes.dhuhr.toLocaleTimeString(
-      "id-ID",
-      timeOpt
-    );
-    els.times.ashar.innerHTML = prayerTimes.asr.toLocaleTimeString(
-      "id-ID",
-      timeOpt
-    );
-    els.times.maghrib.innerHTML = prayerTimes.maghrib.toLocaleTimeString(
-      "id-ID",
-      timeOpt
-    );
-    els.times.isya.innerHTML = prayerTimes.isha.toLocaleTimeString(
-      "id-ID",
-      timeOpt
-    );
+    els.times.subuh.innerHTML = formatTime(prayerTimes.fajr);
+    els.times.shuruq.innerHTML = formatTime(prayerTimes.sunrise);
+    els.times.dzuhur.innerHTML = formatTime(prayerTimes.dhuhr);
+    els.times.ashar.innerHTML = formatTime(prayerTimes.asr);
+    els.times.maghrib.innerHTML = formatTime(prayerTimes.maghrib);
+    els.times.isya.innerHTML = formatTime(prayerTimes.isha);
 
     return prayerTimes;
   }
@@ -135,30 +174,20 @@
 
   function tick() {
     var now = new Date();
-    var offset = localStorage.getItem("time_offset");
-    if (offset) now = new Date(now.getTime() + parseInt(offset));
+    if (config.time_offset) now = new Date(now.getTime() + config.time_offset);
 
-    // --- JAM ANALOG ---
     var seconds = now.getSeconds();
     var minutes = now.getMinutes();
     var hours = now.getHours();
-    var secDeg = seconds * 6;
-    var minDeg = minutes * 6 + seconds * 0.1;
-    var hourDeg = hours * 30 + minutes * 0.5;
 
-    function rotateHand(el, deg) {
-      var val = "rotate(" + deg + "deg)";
-      el.style.transform = val;
-      el.style.webkitTransform = val;
-      el.style.mozTransform = val;
-    }
-    rotateHand(els.sec, secDeg);
-    rotateHand(els.min, minDeg);
-    rotateHand(els.hour, hourDeg);
+    els.sec.style.transform = "rotate(" + seconds * 6 + "deg)";
+    els.min.style.transform =
+      "rotate(" + (minutes * 6 + seconds * 0.1) + "deg)";
+    els.hour.style.transform =
+      "rotate(" + (hours * 30 + minutes * 0.5) + "deg)";
 
     if (seconds % 10 === 0) updateRunningText();
 
-    // --- LOGIKA JADWAL & COUNTDOWN ---
     var currentDay = now.getDate();
     if (currentDay !== lastDay) {
       currentPrayerData = calculatePrayerTimes(now);
@@ -168,99 +197,77 @@
 
     if (currentPrayerData) {
       var next = currentPrayerData.nextPrayer(now);
-
       var isCountdownMode = false;
       var targetTime = null;
-      var nextNameDisplay = "";
 
-      if (next !== "none") {
-        if (next === "fajr") targetTime = currentPrayerData.fajr;
-        else if (next === "sunrise") targetTime = currentPrayerData.sunrise;
-        else if (next === "dhuhr") targetTime = currentPrayerData.dhuhr;
-        else if (next === "asr") targetTime = currentPrayerData.asr;
-        else if (next === "maghrib") targetTime = currentPrayerData.maghrib;
-        else if (next === "isha") targetTime = currentPrayerData.isha;
+      if (next === "fajr") targetTime = currentPrayerData.fajr;
+      else if (next === "sunrise") targetTime = currentPrayerData.sunrise;
+      else if (next === "dhuhr") targetTime = currentPrayerData.dhuhr;
+      else if (next === "asr") targetTime = currentPrayerData.asr;
+      else if (next === "maghrib") targetTime = currentPrayerData.maghrib;
+      else if (next === "isha") targetTime = currentPrayerData.isha;
 
-        if (targetTime) {
-          var diff = targetTime - now;
-          var diffMinutes = diff / 1000 / 60;
+      if (targetTime) {
+        var diff = targetTime - now;
+        var diffMinutes = diff / 1000 / 60;
 
-          if (diffMinutes <= COUNTDOWN_MINUTES && diffMinutes > 0) {
-            isCountdownMode = true;
+        if (diffMinutes <= config.countdown_duration && diffMinutes > 0) {
+          isCountdownMode = true;
+          els.countdown.timer.innerHTML = formatCountdown(diff);
 
-            els.countdown.timer.innerHTML = formatCountdown(diff);
-
-            var mapName = {
-              fajr: "SUBUH",
-              sunrise: "SYURUQ",
-              dhuhr: "DZUHUR",
-              asr: "ASHAR",
-              maghrib: "MAGHRIB",
-              isha: "ISYA",
-            };
-            var nameNow = mapName[next];
-            if (els.countdown.nextName.innerHTML !== nameNow) {
-              els.countdown.nextName.innerHTML = nameNow;
-            }
-          }
+          var mapName = {
+            fajr: "SUBUH",
+            sunrise: "SYURUQ",
+            dhuhr: "DZUHUR",
+            asr: "ASHAR",
+            maghrib: "MAGHRIB",
+            isha: "ISYA",
+          };
+          els.countdown.nextName.innerHTML = mapName[next];
         }
       }
 
       if (isCountdownMode !== lastCountdownState) {
-        if (isCountdownMode) {
-          els.countdown.overlay.style.display = "flex";
-          els.countdown.overlay.style.display = "";
-          els.countdown.overlay.classList.add("show-flex");
-
-          els.countdown.overlay.style.display = "flex";
-        } else {
-          els.countdown.overlay.style.display = "none";
-        }
+        els.countdown.overlay.style.display = isCountdownMode ? "flex" : "none";
         lastCountdownState = isCountdownMode;
       }
 
-      if (!isCountdownMode) {
-        if (next !== lastActivePrayer) {
-          for (var key in els.rows) {
-            if (els.rows.hasOwnProperty(key))
-              els.rows[key].className = "schedule-item";
-          }
-          var map = {
-            fajr: els.rows.subuh,
-            shuruq: els.rows.shuruq,
-            sunrise: els.rows.shuruq,
-            dhuhr: els.rows.dzuhur,
-            asr: els.rows.ashar,
-            maghrib: els.rows.maghrib,
-            isha: els.rows.isya,
-            none: els.rows.subuh,
-          };
-          if (map[next]) map[next].className = "schedule-item active";
-          else if (next === "none")
-            els.rows.subuh.className = "schedule-item active";
+      if (!isCountdownMode && next !== lastActivePrayer) {
+        for (var key in els.rows) els.rows[key].className = "schedule-item";
 
-          lastActivePrayer = next;
-        }
+        var mapRow = {
+          fajr: els.rows.subuh,
+          sunrise: els.rows.shuruq,
+          dhuhr: els.rows.dzuhur,
+          asr: els.rows.ashar,
+          maghrib: els.rows.maghrib,
+          isha: els.rows.isya,
+          none: els.rows.subuh,
+        };
+
+        if (mapRow[next]) mapRow[next].className = "schedule-item active";
+        else if (next === "none")
+          els.rows.subuh.className = "schedule-item active";
+
+        lastActivePrayer = next;
       }
     }
   }
 
   function updateRunningText() {
-    var textData =
-      localStorage.getItem("running_text") ||
-      "Selamat Datang di Masjid An-Nur...";
-    if (textData !== lastRunningText) {
+    if (config.running_text !== lastRunningText) {
       var el = document.getElementById("marquee-text");
       if (el) {
-        el.innerHTML = textData;
-        lastRunningText = textData;
+        el.innerHTML = config.running_text;
+        lastRunningText = config.running_text;
       }
     }
   }
 
   createNumbers();
-  updateDataMasjid();
-  updateRunningText();
+  fetchSettings();
+
+  setInterval(fetchSettings, 30000);
   setInterval(tick, 1000);
   tick();
 })();
