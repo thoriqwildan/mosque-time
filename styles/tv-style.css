@@ -406,7 +406,7 @@ body {
   text-align: right;
   color: #ffffff;
   text-shadow: 0 2px 4px rgba(0, 0, 0, 0.8);
-  z-index: 100000;
+  z-index: 9999;
 }
 
 #digital-clock {

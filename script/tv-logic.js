@@ -116,7 +116,7 @@
 
   function getHijriDate(dateObj, adjustment) {
     var adjust = adjustment || 0;
-    var wd = dateObj.getDay();
+
     var d = dateObj.getDate();
     var m = dateObj.getMonth();
     var y = dateObj.getFullYear();
@@ -139,23 +139,8 @@
       jd = jd + 1 + a - Math.floor(a / 4.0);
     }
 
-    var b = jd + 1524;
-    var c = Math.floor((b - 122.1) / 365.25);
-    var d2 = Math.floor(365.25 * c);
-    var e = Math.floor((b - d2) / 30.6001);
-
-    var day = b - d2 - Math.floor(30.6001 * e);
-    var month = e - 1;
-    if (month > 13) {
-      c = c + 1;
-      month = month - 12;
-    }
-    month = month - 1;
-    var year = c - 4716;
-
     var iyear = 10631.0 / 30.0;
     var epochastro = 1948084;
-    var epochcivil = 1948085;
 
     var shift1 = 8.01 / 60.0;
 
@@ -166,7 +151,9 @@
     var iy = 30 * cyc + j;
     z = z - Math.floor(j * iyear + shift1);
     var im = Math.floor((z + 28.5001) / 29.5);
+
     if (im === 13) im = 12;
+
     var id = z - Math.floor(29.5 * im - 29.0001);
 
     return {
@@ -312,7 +299,7 @@
       }
 
       if (els.digital.hijri) {
-        var hData = getHijriDate(now, 0);
+        var hData = getHijriDate(now, -1);
         els.digital.hijri.innerHTML =
           hData.day + " " + monthsHijri[hData.month] + " " + hData.year + " H";
       }
