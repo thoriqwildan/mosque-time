@@ -67,11 +67,12 @@ body {
   color: #ffffff;
   border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 
-  -webkit-transition: background-color 0.5s, border-left 0.5s, padding-left 0.5s;
-  transition: background-color 0.5s, border-left 0.5s, padding-left 0.5s;
+  -webkit-transition: background-color 0.5s, -webkit-transform 0.3s;
+  transition: background-color 0.5s, transform 0.3s;
 
   display: table;
   padding: 0 0 0 10%;
+  position: relative;
 }
 
 .schedule-item:last-child {
@@ -80,8 +81,7 @@ body {
 
 .schedule-item.active {
   background-color: rgba(255, 215, 0, 0.2);
-  border-left: 5px solid #ffd700;
-  padding-left: calc(10% - 5px);
+  box-shadow: inset 5px 0 0 0 #ffd700;
 }
 
 .schedule-item.active .schedule-text span {
@@ -206,16 +206,15 @@ body {
   height: 49vmin;
 
   z-index: 9999;
-  pointer-events: none; /* Tembus pandang kursor */
+  pointer-events: none;
 }
 
 .clock-face {
   position: relative;
   width: 100%;
   height: 100%;
-  /* Background putih dengan sedikit transparansi */
   background-color: rgba(255, 255, 255, 0.97);
-  border: 10px solid #1e283b; /* Warna border senada title-card */
+  border: 10px solid #1e283b;
 
   -webkit-border-radius: 50%;
   -moz-border-radius: 50%;
@@ -236,7 +235,7 @@ body {
 
 .clock-number span {
   display: inline-block;
-  padding: 5px; /* Jarak angka dari pinggir lingkaran */
+  padding: 5px;
   font-family: "oswald", "Arial", sans-serif;
   font-size: 1.7vw;
   font-weight: bold;
@@ -266,18 +265,12 @@ body {
   position: absolute;
   bottom: 50%;
   left: 50%;
-
   -webkit-transform-origin: bottom center;
-  -moz-transform-origin: bottom center;
-  -ms-transform-origin: bottom center;
   transform-origin: bottom center;
-
   -webkit-border-radius: 4px;
   border-radius: 4px;
 
-  /* Tambahkan shadow biar jarum terlihat ngambang */
-  -webkit-box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+  box-shadow: none;
 }
 
 .hour-hand {
@@ -286,11 +279,12 @@ body {
   background-color: #0f172a;
   margin-left: -5px;
   z-index: 10;
+  border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .minute-hand {
   width: 6px;
-  height: 30%; /* Lebih panjang dikit */
+  height: 30%;
   background-color: #334155;
   margin-left: -3px;
   z-index: 11;
@@ -298,7 +292,7 @@ body {
 
 .second-hand {
   width: 2px;
-  height: 34%; /* Paling panjang */
+  height: 34%;
   background-color: #ef4444;
   margin-left: -1px;
   z-index: 12;
@@ -404,6 +398,42 @@ body {
   text-transform: uppercase;
 }
 
+.digital-wrapper {
+  position: absolute;
+  right: 0px;
+  top: 25%;
+  margin-right: 10px;
+  text-align: right;
+  color: #ffffff;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.8);
+  z-index: 100000;
+}
+
+#digital-clock {
+  font-family: "oswald", sans-serif;
+  font-size: 5vw;
+  margin: 0;
+  line-height: 1;
+  color: #ffd700;
+  letter-spacing: 2px;
+}
+
+.date-wrapper {
+  font-family: "poppins", sans-serif;
+  font-size: 1.3vw;
+  margin-top: 10px;
+  background-color: rgba(15, 23, 42, 0.7);
+  padding: 5px 15px;
+  border-radius: 20px;
+  display: inline-block;
+}
+
+.separator {
+  color: #ffd700;
+  margin: 0 10px;
+  font-weight: bold;
+}
+
 @keyframes fadeIn {
   from {
     opacity: 0;
@@ -441,9 +471,13 @@ body {
     display: none !important;
   }
 
+  .digital-wrapper {
+    display: none;
+  }
+
   .bg-right {
     width: 100%;
-    height: 70%; /* 40% Layar untuk Gambar/Judul */
+    height: 70%;
     float: none;
     -webkit-order: 1;
     order: 1;

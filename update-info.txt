@@ -4,6 +4,7 @@ Fitur Web Masjid
 - Koreksi Jadwal Sholat (baru!)
 - Ganti display 10 menit sebelum adzan (baru!)
 - Countdown adzan dibuat dinamis (baru!)
+- Jam digital (baru!)
 - Responsive untuk vertikal display (baru!) #belum sempurna
 
-- Kalender Hijriah (belum)
+- Kalender Hijriah (masih ngaco)

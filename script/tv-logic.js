@@ -44,7 +44,42 @@
       timer: document.getElementById("cd-timer"),
       nextName: document.getElementById("cd-next-prayer"),
     },
+    digital: {
+      clock: document.getElementById("digital-clock"),
+      gregorian: document.getElementById("date-gregorian"),
+      hijri: document.getElementById("date-hijri"),
+    },
   };
+
+  var daysIndo = ["Ahad", "Senin", "Selasa", "Rabu", "Kamis", "Jumat", "Sabtu"];
+  var monthsIndo = [
+    "Januari",
+    "Februari",
+    "Maret",
+    "April",
+    "Mei",
+    "Juni",
+    "Juli",
+    "Agustus",
+    "September",
+    "Oktober",
+    "November",
+    "Desember",
+  ];
+  var monthsHijri = [
+    "Muharram",
+    "Safar",
+    "Rabiul Awal",
+    "Rabiul Akhir",
+    "Jumadil Awal",
+    "Jumadil Akhir",
+    "Rajab",
+    "Sya'ban",
+    "Ramadhan",
+    "Syawal",
+    "Dzulqa'dah",
+    "Dzulhijjah",
+  ];
 
   var currentPrayerData = null;
   var lastActivePrayer = "";
@@ -77,6 +112,68 @@
     var h = d.getHours();
     var m = d.getMinutes();
     return (h < 10 ? "0" + h : h) + ":" + (m < 10 ? "0" + m : m);
+  }
+
+  function getHijriDate(dateObj, adjustment) {
+    var adjust = adjustment || 0;
+    var wd = dateObj.getDay();
+    var d = dateObj.getDate();
+    var m = dateObj.getMonth();
+    var y = dateObj.getFullYear();
+
+    var mPart = m - 2.0;
+    if (mPart < 1.0) {
+      mPart = mPart + 12.0;
+      y = y - 1.0;
+    }
+
+    var jd =
+      Math.floor(365.25 * (y + 4716.0)) +
+      Math.floor(30.6001 * (mPart + 1.0)) +
+      d +
+      adjust -
+      1524.5;
+
+    if (jd > 2299160.0) {
+      var a = Math.floor((jd - 1867216.25) / 36524.25);
+      jd = jd + 1 + a - Math.floor(a / 4.0);
+    }
+
+    var b = jd + 1524;
+    var c = Math.floor((b - 122.1) / 365.25);
+    var d2 = Math.floor(365.25 * c);
+    var e = Math.floor((b - d2) / 30.6001);
+
+    var day = b - d2 - Math.floor(30.6001 * e);
+    var month = e - 1;
+    if (month > 13) {
+      c = c + 1;
+      month = month - 12;
+    }
+    month = month - 1;
+    var year = c - 4716;
+
+    var iyear = 10631.0 / 30.0;
+    var epochastro = 1948084;
+    var epochcivil = 1948085;
+
+    var shift1 = 8.01 / 60.0;
+
+    var z = jd - epochastro;
+    var cyc = Math.floor(z / 10631.0);
+    z = z - 10631.0 * cyc;
+    var j = Math.floor((z - shift1) / iyear);
+    var iy = 30 * cyc + j;
+    z = z - Math.floor(j * iyear + shift1);
+    var im = Math.floor((z + 28.5001) / 29.5);
+    if (im === 13) im = 12;
+    var id = z - Math.floor(29.5 * im - 29.0001);
+
+    return {
+      day: id,
+      month: im - 1,
+      year: iy,
+    };
   }
 
   function fetchSettings() {
@@ -186,12 +283,40 @@
     els.hour.style.transform =
       "rotate(" + (hours * 30 + minutes * 0.5) + "deg)";
 
+    var sStr = seconds < 10 ? "0" + seconds : seconds;
+    var mStr = minutes < 10 ? "0" + minutes : minutes;
+    var hStr = hours < 10 ? "0" + hours : hours;
+
+    if (els.digital.clock) {
+      els.digital.clock.innerHTML = hStr + ":" + mStr + ":" + sStr;
+    }
+
     if (seconds % 10 === 0) updateRunningText();
 
     var currentDay = now.getDate();
     if (currentDay !== lastDay) {
       currentPrayerData = calculatePrayerTimes(now);
       lastDay = currentDay;
+
+      if (els.digital.gregorian) {
+        var dayName = daysIndo[now.getDay()];
+        var monthName = monthsIndo[now.getMonth()];
+        els.digital.gregorian.innerHTML =
+          dayName +
+          ", " +
+          currentDay +
+          " " +
+          monthName +
+          " " +
+          now.getFullYear();
+      }
+
+      if (els.digital.hijri) {
+        var hData = getHijriDate(now, 0);
+        els.digital.hijri.innerHTML =
+          hData.day + " " + monthsHijri[hData.month] + " " + hData.year + " H";
+      }
+
       if (hours === 2 && minutes === 0 && seconds < 5) window.location.reload();
     }
 
@@ -255,7 +380,7 @@
   }
 
   function updateRunningText() {
-    if (config.running_text !== lastRunningText) {
+    if (config.running_text && config.running_text !== lastRunningText) {
       var el = document.getElementById("marquee-text");
       if (el) {
         el.innerHTML = config.running_text;

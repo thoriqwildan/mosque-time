@@ -1,4 +1,5 @@
 <?php
+error_reporting(0);
 header("Access-Control-Allow-Origin: *");
 header("Content-Type: application/json");
 
@@ -9,8 +10,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $data = json_decode($input, true);
 
     if ($data !== null) {
-        file_put_contents($file, json_encode($data, JSON_PRETTY_PRINT));
-        echo json_encode(array("status" => "success", "message" => "Data tersimpan"));
+        if (file_put_contents($file, json_encode($data, JSON_PRETTY_PRINT), LOCK_EX)) {
+            echo json_encode(array("status" => "success", "message" => "Data tersimpan"));
+        } else {
+            http_response_code(500);
+            echo json_encode(array("status" => "error", "message" => "Gagal menulis file"));
+        }
     } else {
         http_response_code(400);
         echo json_encode(array("status" => "error", "message" => "JSON Invalid"));
@@ -18,6 +23,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 } 
 else {
     if (file_exists($file)) {
+        header("Cache-Control: no-cache, no-store, must-revalidate");
         echo file_get_contents($file);
     } else {
         $defaultData = array(
@@ -31,6 +37,7 @@ else {
             "countdown_duration" => 10,
             "time_offset" => 0
         );
+        file_put_contents($file, json_encode($defaultData, JSON_PRETTY_PRINT), LOCK_EX);
         echo json_encode($defaultData);
     }
 }
