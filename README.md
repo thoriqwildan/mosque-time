@@ -1,36 +1,56 @@
-# Setup Instructions
+# Jam Masjid Digital (Web Based)
 
-1. Clone the GitHub repository.
+Aplikasi Jam Masjid Digital berbasis web yang ringan, dirancang untuk berjalan pada perangkat dengan spesifikasi rendah (seperti RSB-3410 dengan Ubuntu 14.04) maupun browser modern.
 
-   ```bash
-   git clone <repository-url>
-   ```
+## Fitur Utama
 
-2. Navigate to the project folder.
+- **Jadwal Sholat Otomatis:** Perhitungan berdasarkan koordinat (Latitude/Longitude) menggunakan _Adhan.js_.
+- **Mode Offline:** Berjalan 100% di _localhost_ tanpa internet (setelah setup awal).
+- **Dual View:** Tampilan TV (`index.html`) dan Panel Admin (`admin.html`).
+- **Countdown & Ihtiyati:** Hitung mundur menuju adzan dan koreksi waktu sholat.
+- **Kompatibilitas:** Mendukung browser lama (Legacy Flexbox Support).
 
-   ```bash
-   cd jam-masjid-php
-   ```
+---
 
-3. Create the data.json file.
+## Persyaratan Sistem (Prerequisites)
 
-   ```bash
-   touch data.json
-   ```
+- PHP 5.4 atau lebih baru.
+- Web Browser (Chrome/Chromium/Firefox).
+- Apache.
 
-4. Set permissions for data.json.
+---
 
-   ```bash
-   chmod 777 data.json
-   ```
+## Cara Instalasi
 
-5. Set permissions for the project folder.
+Pastikan Apache sudah terinstall di board
 
-   ```bash
-   chmod 777 .
-   ```
+### 1. Clone & Deploy
 
-6. Run the code.
-   ```bash
-   php -S 0.0.0.0:[port]
-   ```
+Buka terminal dan jalankan perintah berikut baris per baris:
+
+```bash
+# 1. Masuk ke folder home dan clone
+cd ~
+git clone <repository-url>
+cd jam-masjid-php
+
+# 2. Bersihkan web root default Apache
+sudo rm -rf /var/www/html/*
+
+# 3. Salin kode project ke web root
+sudo cp -r * /var/www/html/
+
+# 4. Pindah ke direktori web root untuk setting permission
+cd /var/www/html/
+
+# 5. Buat file data.json (jika belum ada)
+sudo touch data.json
+
+# 6. Set Permission (PENTING)
+# Ubah pemilik folder ke user apache (www-data)
+sudo chown -R www-data:www-data /var/www/html
+
+# Set hak akses: Folder bisa dibaca, data.json bisa ditulis
+sudo chmod -R 755 /var/www/html
+sudo chmod 666 /var/www/html/data.json
+```

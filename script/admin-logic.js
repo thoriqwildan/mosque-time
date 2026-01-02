@@ -70,12 +70,17 @@ function setValue(id, val) {
 }
 
 function saveAll() {
+  function cleanFloat(val) {
+    if (!val) return 0;
+    return val.toString().replace(",", ".");
+  }
+
   var data = {
     mosque_name: document.getElementById("mosque_name").value,
     mosque_address: document.getElementById("mosque_address").value,
     running_text: document.getElementById("running_text").value,
-    latitude: document.getElementById("latitude").value,
-    longitude: document.getElementById("longitude").value,
+    latitude: cleanFloat(document.getElementById("latitude").value),
+    longitude: cleanFloat(document.getElementById("longitude").value),
 
     tune_subuh: document.getElementById("tune_subuh").value,
     tune_shuruq: document.getElementById("tune_shuruq").value,

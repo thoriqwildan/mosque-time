@@ -22,6 +22,7 @@
     face: document.getElementById("clock-face"),
     masjid: document.getElementById("nama-masjid"),
     alamat: document.getElementById("alamat-masjid"),
+    marquee: document.getElementById("marquee-text"),
     rows: {
       subuh: document.getElementById("row-subuh"),
       shuruq: document.getElementById("row-shuruq"),
@@ -87,21 +88,16 @@
   var lastRunningText = "";
   var lastCountdownState = false;
 
-  function ajax(url, successCallback, errorCallback) {
+  function ajax(url, successCallback) {
     var xhr = new XMLHttpRequest();
     xhr.open("GET", url, true);
     xhr.onreadystatechange = function () {
-      if (xhr.readyState === 4) {
-        if (xhr.status >= 200 && xhr.status < 400) {
-          try {
-            var data = JSON.parse(xhr.responseText);
-            if (successCallback) successCallback(data);
-          } catch (e) {
-            console.error("JSON Parse error", e);
-            if (errorCallback) errorCallback(e);
-          }
-        } else {
-          if (errorCallback) errorCallback(xhr);
+      if (xhr.readyState === 4 && xhr.status >= 200 && xhr.status < 400) {
+        try {
+          var data = JSON.parse(xhr.responseText);
+          if (successCallback) successCallback(data);
+        } catch (e) {
+          console.error("JSON Error", e);
         }
       }
     };
@@ -114,74 +110,15 @@
     return (h < 10 ? "0" + h : h) + ":" + (m < 10 ? "0" + m : m);
   }
 
-  function getHijriDate(dateObj, adjustment) {
-    var adjust = adjustment || 0;
-
-    var d = dateObj.getDate();
-    var m = dateObj.getMonth();
-    var y = dateObj.getFullYear();
-
-    var mPart = m - 2.0;
-    if (mPart < 1.0) {
-      mPart = mPart + 12.0;
-      y = y - 1.0;
-    }
-
-    var jd =
-      Math.floor(365.25 * (y + 4716.0)) +
-      Math.floor(30.6001 * (mPart + 1.0)) +
-      d +
-      adjust -
-      1524.5;
-
-    if (jd > 2299160.0) {
-      var a = Math.floor((jd - 1867216.25) / 36524.25);
-      jd = jd + 1 + a - Math.floor(a / 4.0);
-    }
-
-    var iyear = 10631.0 / 30.0;
-    var epochastro = 1948084;
-
-    var shift1 = 8.01 / 60.0;
-
-    var z = jd - epochastro;
-    var cyc = Math.floor(z / 10631.0);
-    z = z - 10631.0 * cyc;
-    var j = Math.floor((z - shift1) / iyear);
-    var iy = 30 * cyc + j;
-    z = z - Math.floor(j * iyear + shift1);
-    var im = Math.floor((z + 28.5001) / 29.5);
-
-    if (im === 13) im = 12;
-
-    var id = z - Math.floor(29.5 * im - 29.0001);
-
-    return {
-      day: id,
-      month: im - 1,
-      year: iy,
-    };
+  function addMinutes(date, minutes) {
+    return new Date(date.getTime() + minutes * 60000);
   }
 
-  function fetchSettings() {
-    ajax(
-      "api.php?t=" + new Date().getTime(),
-      function (data) {
-        config = data;
-        config.latitude = parseFloat(data.latitude);
-        config.longitude = parseFloat(data.longitude);
-        config.countdown_duration = parseInt(data.countdown_duration);
-        config.time_offset = parseInt(data.time_offset) || 0;
-
-        updateDataMasjid();
-        updateRunningText();
-
-        currentPrayerData = calculatePrayerTimes(new Date());
-      },
-      function (err) {
-        console.error("Gagal koneksi ke server lokal:", err);
-      }
-    );
+  function formatCountdown(ms) {
+    var totalSeconds = Math.floor(ms / 1000);
+    var m = Math.floor(totalSeconds / 60);
+    var s = totalSeconds % 60;
+    return (m < 10 ? "0" + m : m) + ":" + (s < 10 ? "0" + s : s);
   }
 
   function createNumbers() {
@@ -198,16 +135,74 @@
     }
   }
 
-  function updateDataMasjid() {
-    els.masjid.innerHTML = config.mosque_name;
-    els.alamat.innerHTML = config.mosque_address;
+  function fetchSettings() {
+    ajax("api.php?t=" + new Date().getTime(), function (data) {
+      config = data;
+      config.latitude = parseFloat(data.latitude);
+      config.longitude = parseFloat(data.longitude);
+      config.countdown_duration = parseInt(data.countdown_duration);
+      config.time_offset = parseInt(data.time_offset) || 0;
+
+      if (els.masjid.innerHTML !== config.mosque_name)
+        els.masjid.innerHTML = config.mosque_name;
+      if (els.alamat.innerHTML !== config.mosque_address)
+        els.alamat.innerHTML = config.mosque_address;
+
+      updateRunningText();
+
+      lastDay = -1;
+      slowTick();
+    });
   }
 
-  function addMinutes(date, minutes) {
-    return new Date(date.getTime() + minutes * 60000);
+  function updateRunningText() {
+    if (config.running_text && config.running_text !== lastRunningText) {
+      if (els.marquee) {
+        els.marquee.innerHTML = config.running_text;
+        lastRunningText = config.running_text;
+      }
+    }
+  }
+
+  function getHijriDate(dateObj, adjustment) {
+    var adjust = adjustment || 0;
+    var d = dateObj.getDate();
+    var m = dateObj.getMonth();
+    var y = dateObj.getFullYear();
+
+    var mPart = m - 2.0;
+    if (mPart < 1.0) {
+      mPart = mPart + 12.0;
+      y = y - 1.0;
+    }
+    var jd =
+      Math.floor(365.25 * (y + 4716.0)) +
+      Math.floor(30.6001 * (mPart + 1.0)) +
+      d +
+      adjust -
+      1524.5;
+    if (jd > 2299160.0) {
+      var a = Math.floor((jd - 1867216.25) / 36524.25);
+      jd = jd + 1 + a - Math.floor(a / 4.0);
+    }
+    var iyear = 10631.0 / 30.0;
+    var epochastro = 1948084;
+    var z = jd - epochastro;
+    var cyc = Math.floor(z / 10631.0);
+    z = z - 10631.0 * cyc;
+    var j = Math.floor((z - 8.01 / 60.0) / iyear);
+    var iy = 30 * cyc + j;
+    z = z - Math.floor(j * iyear + 8.01 / 60.0);
+    var im = Math.floor((z + 28.5001) / 29.5);
+    if (im === 13) im = 12;
+    var id = z - Math.floor(29.5 * im - 29.0001);
+
+    return { day: id, month: im - 1, year: iy };
   }
 
   function calculatePrayerTimes(dateObj) {
+    if (!window.adhan) return null;
+
     var coordinates = new adhan.Coordinates(config.latitude, config.longitude);
     var params = adhan.CalculationMethod.Singapore();
     params.madhab = adhan.Madhab.Shafi;
@@ -249,14 +244,7 @@
     return prayerTimes;
   }
 
-  function formatCountdown(ms) {
-    var totalSeconds = Math.floor(ms / 1000);
-    var m = Math.floor(totalSeconds / 60);
-    var s = totalSeconds % 60;
-    return (m < 10 ? "0" + m : m) + ":" + (s < 10 ? "0" + s : s);
-  }
-
-  function tick() {
+  function fastTick() {
     var now = new Date();
     if (config.time_offset) now = new Date(now.getTime() + config.time_offset);
 
@@ -270,41 +258,11 @@
     els.hour.style.transform =
       "rotate(" + (hours * 30 + minutes * 0.5) + "deg)";
 
-    var sStr = seconds < 10 ? "0" + seconds : seconds;
-    var mStr = minutes < 10 ? "0" + minutes : minutes;
-    var hStr = hours < 10 ? "0" + hours : hours;
-
     if (els.digital.clock) {
+      var sStr = seconds < 10 ? "0" + seconds : seconds;
+      var mStr = minutes < 10 ? "0" + minutes : minutes;
+      var hStr = hours < 10 ? "0" + hours : hours;
       els.digital.clock.innerHTML = hStr + ":" + mStr + ":" + sStr;
-    }
-
-    if (seconds % 10 === 0) updateRunningText();
-
-    var currentDay = now.getDate();
-    if (currentDay !== lastDay) {
-      currentPrayerData = calculatePrayerTimes(now);
-      lastDay = currentDay;
-
-      if (els.digital.gregorian) {
-        var dayName = daysIndo[now.getDay()];
-        var monthName = monthsIndo[now.getMonth()];
-        els.digital.gregorian.innerHTML =
-          dayName +
-          ", " +
-          currentDay +
-          " " +
-          monthName +
-          " " +
-          now.getFullYear();
-      }
-
-      if (els.digital.hijri) {
-        var hData = getHijriDate(now, -1);
-        els.digital.hijri.innerHTML =
-          hData.day + " " + monthsHijri[hData.month] + " " + hData.year + " H";
-      }
-
-      if (hours === 2 && minutes === 0 && seconds < 5) window.location.reload();
     }
 
     if (currentPrayerData) {
@@ -312,12 +270,13 @@
       var isCountdownMode = false;
       var targetTime = null;
 
-      if (next === "fajr") targetTime = currentPrayerData.fajr;
-      else if (next === "sunrise") targetTime = currentPrayerData.sunrise;
-      else if (next === "dhuhr") targetTime = currentPrayerData.dhuhr;
-      else if (next === "asr") targetTime = currentPrayerData.asr;
-      else if (next === "maghrib") targetTime = currentPrayerData.maghrib;
-      else if (next === "isha") targetTime = currentPrayerData.isha;
+      if (next !== "none") {
+        targetTime = currentPrayerData[next];
+      } else {
+        // Jika sudah lewat isya, target subuh besok (simplified)
+        // Logic detail handled by adhan.js next day usually
+        // Untuk sekarang biarkan standar
+      }
 
       if (targetTime) {
         var diff = targetTime - now;
@@ -354,7 +313,6 @@
           asr: els.rows.ashar,
           maghrib: els.rows.maghrib,
           isha: els.rows.isya,
-          none: els.rows.subuh,
         };
 
         if (mapRow[next]) mapRow[next].className = "schedule-item active";
@@ -364,14 +322,39 @@
         lastActivePrayer = next;
       }
     }
+
+    if (hours === 2 && minutes === 0 && seconds === 0) {
+      window.location.reload();
+    }
   }
 
-  function updateRunningText() {
-    if (config.running_text && config.running_text !== lastRunningText) {
-      var el = document.getElementById("marquee-text");
-      if (el) {
-        el.innerHTML = config.running_text;
-        lastRunningText = config.running_text;
+  function slowTick() {
+    var now = new Date();
+    if (config.time_offset) now = new Date(now.getTime() + config.time_offset);
+
+    var currentDay = now.getDate();
+
+    if (currentDay !== lastDay) {
+      currentPrayerData = calculatePrayerTimes(now);
+      lastDay = currentDay;
+
+      if (els.digital.gregorian) {
+        var dayName = daysIndo[now.getDay()];
+        var monthName = monthsIndo[now.getMonth()];
+        els.digital.gregorian.innerHTML =
+          dayName +
+          ", " +
+          currentDay +
+          " " +
+          monthName +
+          " " +
+          now.getFullYear();
+      }
+
+      if (els.digital.hijri) {
+        var hData = getHijriDate(now, -1);
+        els.digital.hijri.innerHTML =
+          hData.day + " " + monthsHijri[hData.month] + " " + hData.year + " H";
       }
     }
   }
@@ -379,7 +362,10 @@
   createNumbers();
   fetchSettings();
 
-  setInterval(fetchSettings, 30000);
-  setInterval(tick, 1000);
-  tick();
+  setInterval(fastTick, 1000);
+  setInterval(slowTick, 60000);
+  setInterval(fetchSettings, 300000);
+
+  fastTick();
+  slowTick();
 })();

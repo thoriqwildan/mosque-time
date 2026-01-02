@@ -61,10 +61,15 @@
               *Wajib diisi agar jadwal sholat akurat.
             </p>
             <label>Latitude (Garis Lintang)</label>
-            <input type="text" id="latitude" placeholder="-6.xxxx" />
+            <input type="text" step="any" id="latitude" placeholder="-6.xxxx" />
 
             <label>Longitude (Garis Bujur)</label>
-            <input type="text" id="longitude" placeholder="106.xxxx" />
+            <input
+              type="text"
+              step="any"
+              id="longitude"
+              placeholder="106.xxxx"
+            />
 
             <button class="btn-blue" onclick="autoDetect()">
               Deteksi Lokasi Saya (GPS)

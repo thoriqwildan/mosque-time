@@ -10,11 +10,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $data = json_decode($input, true);
 
     if ($data !== null) {
+        if ((file_exists($file) && !is_writable($file)) || (!file_exists($file) && !is_writable(__DIR__))) {
+            http_response_code(500);
+            echo json_encode(array(
+                "status" => "error", 
+                "message" => "Server Permission Error: Tidak bisa menulis file 'data.json'. Jalankan 'chmod 666 data.json' di terminal linux."
+            ));
+            exit;
+        }
+
         if (file_put_contents($file, json_encode($data, JSON_PRETTY_PRINT), LOCK_EX)) {
             echo json_encode(array("status" => "success", "message" => "Data tersimpan"));
         } else {
             http_response_code(500);
-            echo json_encode(array("status" => "error", "message" => "Gagal menulis file"));
+            echo json_encode(array("status" => "error", "message" => "Gagal menulis file (Unknown Error)"));
         }
     } else {
         http_response_code(400);
