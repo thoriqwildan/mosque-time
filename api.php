@@ -10,44 +10,51 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $data = json_decode($input, true);
 
     if ($data !== null) {
-        if ((file_exists($file) && !is_writable($file)) || (!file_exists($file) && !is_writable(__DIR__))) {
-            http_response_code(500);
-            echo json_encode(array(
-                "status" => "error", 
-                "message" => "Server Permission Error: Tidak bisa menulis file 'data.json'. Jalankan 'chmod 666 data.json' di terminal linux."
-            ));
-            exit;
-        }
-
-        if (file_put_contents($file, json_encode($data, JSON_PRETTY_PRINT), LOCK_EX)) {
+        $tempFile = $file . '.tmp';
+        if (file_put_contents($tempFile, json_encode($data, JSON_PRETTY_PRINT))) {
+            rename($tempFile, $file);
+            chmod($file, 0666);
             echo json_encode(array("status" => "success", "message" => "Data tersimpan"));
         } else {
             http_response_code(500);
-            echo json_encode(array("status" => "error", "message" => "Gagal menulis file (Unknown Error)"));
+            echo json_encode(array("status" => "error", "message" => "Gagal menulis file"));
         }
     } else {
         http_response_code(400);
         echo json_encode(array("status" => "error", "message" => "JSON Invalid"));
     }
-} 
-else {
-    if (file_exists($file)) {
-        header("Cache-Control: no-cache, no-store, must-revalidate");
-        echo file_get_contents($file);
-    } else {
-        $defaultData = array(
-            "mosque_name" => "Masjid Belum Disetting",
-            "mosque_address" => "Silakan buka admin panel",
-            "running_text" => "Selamat Datang...",
-            "latitude" => "-6.1754", 
-            "longitude" => "106.8272",
-            "tune_subuh" => 0, "tune_shuruq" => 0, "tune_dzuhur" => 0,
-            "tune_ashar" => 0, "tune_maghrib" => 0, "tune_isya" => 0,
-            "countdown_duration" => 10,
-            "time_offset" => 0
-        );
-        file_put_contents($file, json_encode($defaultData, JSON_PRETTY_PRINT), LOCK_EX);
-        echo json_encode($defaultData);
+    exit;
+}
+
+if (file_exists($file)) {
+    $lastModifiedTime = filemtime($file);
+    $etag = md5_file($file);
+
+    header("Last-Modified: ".gmdate("D, d M Y H:i:s", $lastModifiedTime)." GMT");
+    header("Etag: $etag");
+
+    if (
+        (isset($_SERVER['HTTP_IF_MODIFIED_SINCE']) && strtotime($_SERVER['HTTP_IF_MODIFIED_SINCE']) >= $lastModifiedTime) ||
+        (isset($_SERVER['HTTP_IF_NONE_MATCH']) && trim($_SERVER['HTTP_IF_NONE_MATCH']) === $etag)
+    ) {
+        header("HTTP/1.1 304 Not Modified");
+        exit;
     }
+
+    echo file_get_contents($file);
+} else {
+    $defaultData = array(
+        "mosque_name" => "Masjid Belum Disetting",
+        "mosque_address" => "Silakan buka admin panel",
+        "running_text" => "Selamat Datang...",
+        "latitude" => "-6.1754", 
+        "longitude" => "106.8272",
+        "tune_subuh" => 0, "tune_shuruq" => 0, "tune_dzuhur" => 0,
+        "tune_ashar" => 0, "tune_maghrib" => 0, "tune_isya" => 0,
+        "countdown_duration" => 10,
+        "time_offset" => 0
+    );
+    file_put_contents($file, json_encode($defaultData, JSON_PRETTY_PRINT));
+    echo json_encode($defaultData);
 }
 ?>

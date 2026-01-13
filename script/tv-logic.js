@@ -13,6 +13,8 @@
     tune_isya: 0,
     countdown_duration: 10,
     time_offset: 0,
+    logo_index: 0,
+    theme_id: "gold",
   };
 
   var els = {
@@ -137,16 +139,62 @@
 
   function fetchSettings() {
     ajax("api.php?t=" + new Date().getTime(), function (data) {
+      var root = document.documentElement;
+
       config = data;
       config.latitude = parseFloat(data.latitude);
       config.longitude = parseFloat(data.longitude);
       config.countdown_duration = parseInt(data.countdown_duration);
       config.time_offset = parseInt(data.time_offset) || 0;
 
+      var logoIndex = parseInt(config.logo_index) || 0;
+      var themeId = config.theme_id || "gold";
+      var selectedTheme =
+        themesList.find(function (t) {
+          return t.id === themeId;
+        }) || themesList[0];
+
       if (els.masjid.innerHTML !== config.mosque_name)
         els.masjid.innerHTML = config.mosque_name;
       if (els.alamat.innerHTML !== config.mosque_address)
         els.alamat.innerHTML = config.mosque_address;
+      if (logoIndex >= logosList.length) logoIndex = 0;
+
+      var logoSrc = "../img/logo/" + logosList[logoIndex];
+
+      if (
+        document.getElementById("masjid-logo").getAttribute("src") !== logoSrc
+      ) {
+        document.getElementById("masjid-logo").src = logoSrc;
+        document.getElementById("masjid-logo-portrait").src = logoSrc;
+      }
+
+      if (
+        getComputedStyle(root)
+          .getPropertyValue("--bg-image")
+          .indexOf(selectedTheme.file) === -1
+      ) {
+        root.style.setProperty(
+          "--bg-image",
+          "url('../img/bg/" + selectedTheme.file + "')"
+        );
+
+        root.style.setProperty("--theme-color", selectedTheme.color);
+        root.style.setProperty("--theme-shadow", selectedTheme.shadow);
+
+        root.style.setProperty(
+          "--bg-color",
+          selectedTheme.bgColor || "#0f172a"
+        );
+        root.style.setProperty(
+          "--panel-bg",
+          selectedTheme.panelBg || "#1e293b"
+        );
+        root.style.setProperty(
+          "--text-white",
+          selectedTheme.textWhite || "#f1f5f9"
+        );
+      }
 
       updateRunningText();
 
