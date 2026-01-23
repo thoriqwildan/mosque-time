@@ -35,6 +35,62 @@ function ajax(url, options, successCallback, errorCallback) {
   xhr.send(options && options.body ? options.body : null);
 }
 
+function getHijriDate(dateObj, adjustment) {
+  var adjust = parseInt(adjustment) || 0;
+  var d = dateObj.getDate();
+  var m = dateObj.getMonth();
+  var y = dateObj.getFullYear();
+
+  var mPart = m - 2.0;
+  if (mPart < 1.0) {
+    mPart = mPart + 12.0;
+    y = y - 1.0;
+  }
+  var jd =
+    Math.floor(365.25 * (y + 4716.0)) +
+    Math.floor(30.6001 * (mPart + 1.0)) +
+    d +
+    adjust -
+    1524.5;
+
+  if (jd > 2299160.0) {
+    var a = Math.floor((jd - 1867216.25) / 36524.25);
+    jd = jd + 1 + a - Math.floor(a / 4.0);
+  }
+  var iyear = 10631.0 / 30.0;
+  var epochastro = 1948084;
+  var z = jd - epochastro;
+  var cyc = Math.floor(z / 10631.0);
+  z = z - 10631.0 * cyc;
+  var j = Math.floor((z - 8.01 / 60.0) / iyear);
+  var iy = 30 * cyc + j;
+  z = z - Math.floor(j * iyear + 8.01 / 60.0);
+  var im = Math.floor((z + 28.5001) / 29.5);
+  if (im === 13) im = 12;
+  var id = z - Math.floor(29.5 * im - 29.0001);
+
+  return {
+    day: Math.floor(id),
+    month: im - 1,
+    year: iy,
+  };
+}
+
+var monthsHijri = [
+  "Muharram",
+  "Safar",
+  "Rabiul Awal",
+  "Rabiul Akhir",
+  "Jumadil Awal",
+  "Jumadil Akhir",
+  "Rajab",
+  "Sya'ban",
+  "Ramadhan",
+  "Syawal",
+  "Dzulqa'dah",
+  "Dzulhijjah",
+];
+
 function loadDataFromServer() {
   ajax(
     "api.php?t=" + new Date().getTime(),
@@ -56,13 +112,15 @@ function loadDataFromServer() {
 
       setValue("logo_index", data.logo_index || 0);
       setValue("theme_id", data.theme_id || "gold");
+      setValue("hijri_offset", data.hijri_offset || 0);
 
       window.currentServerOffset = data.time_offset || 0;
+      updateHijriPreview();
     },
     function (error) {
       console.error("Error:", error);
       alert("Gagal mengambil data dari board.");
-    }
+    },
   );
 }
 
@@ -98,6 +156,8 @@ function saveAll() {
 
     logo_index: document.getElementById("logo_index").value,
     theme_id: document.getElementById("theme_id").value,
+
+    hijri_offset: document.getElementById("hijri_offset").value,
   };
 
   ajax(
@@ -116,7 +176,7 @@ function saveAll() {
     },
     function (error) {
       alert("❌ Error koneksi ke server.");
-    }
+    },
   );
 }
 
@@ -132,7 +192,7 @@ function autoDetect() {
       },
       function (error) {
         alert("Gagal mendeteksi lokasi. Pastikan GPS aktif.");
-      }
+      },
     );
   } else {
     alert("Browser tidak mendukung Geolocation.");
@@ -165,6 +225,22 @@ function timeCalibration() {
   alert(
     "Sinkronisasi dihitung! Offset: " +
       diffMinutes +
-      " menit. \nKLIK 'SIMPAN SEMUA PENGATURAN' AGAR PERMANEN."
+      " menit. \nKLIK 'SIMPAN SEMUA PENGATURAN' AGAR PERMANEN.",
   );
+}
+
+function updateHijriPreview() {
+  var offset = parseInt(document.getElementById("hijri_offset").value) || 0;
+  var hData = getHijriDate(new Date(), offset);
+
+  var text =
+    hData.day + " " + monthsHijri[hData.month] + " " + hData.year + " H";
+  document.getElementById("hijri-preview").innerHTML = text;
+}
+
+function adjustHijri(amount) {
+  var input = document.getElementById("hijri_offset");
+  var current = parseInt(input.value) || 0;
+  input.value = current + amount;
+  updateHijriPreview();
 }

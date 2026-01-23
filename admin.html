@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!doctype html>
 <html>
   <head>
     <title>Admin Dashboard - Jam Masjid</title>
@@ -157,6 +157,50 @@
             </select>
 
             <p class="hint">Warna teks akan berubah otomatis sesuai tema.</p>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-inner">
+            <h2>Kalender Hijriah</h2>
+            <p class="hint">
+              Sesuaikan tanggal jika selisih dengan pemerintah.
+            </p>
+
+            <div style="text-align: center; margin: 20px 0">
+              <h3
+                id="hijri-preview"
+                style="color: #6f42c1; font-size: 1.5em; margin-bottom: 5px"
+              >
+                Loading...
+              </h3>
+              <p style="font-size: 0.9em; color: #666">Preview Tanggal di TV</p>
+            </div>
+
+            <label>Koreksi / Offset (Hari)</label>
+            <div style="display: flex; gap: 10px">
+              <button
+                onclick="adjustHijri(-1)"
+                class="btn-blue"
+                style="background: #ef4444; margin-top: 0"
+              >
+                -1 Hari
+              </button>
+              <input
+                type="number"
+                id="hijri_offset"
+                value="0"
+                style="text-align: center; font-weight: bold"
+                onchange="updateHijriPreview()"
+              />
+              <button
+                onclick="adjustHijri(1)"
+                class="btn-blue"
+                style="background: #10b981; margin-top: 0"
+              >
+                +1 Hari
+              </button>
+            </div>
           </div>
         </div>
       </div>

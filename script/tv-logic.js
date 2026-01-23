@@ -15,6 +15,7 @@
     time_offset: 0,
     logo_index: 0,
     theme_id: "gold",
+    hijri_offset: 0,
   };
 
   var els = {
@@ -146,6 +147,7 @@
       config.longitude = parseFloat(data.longitude);
       config.countdown_duration = parseInt(data.countdown_duration);
       config.time_offset = parseInt(data.time_offset) || 0;
+      config.hijri_offset = parseInt(data.hijri_offset) || 0;
 
       var logoIndex = parseInt(config.logo_index) || 0;
       var themeId = config.theme_id || "gold";
@@ -176,7 +178,7 @@
       ) {
         root.style.setProperty(
           "--bg-image",
-          "url('../img/bg/" + selectedTheme.file + "')"
+          "url('../img/bg/" + selectedTheme.file + "')",
         );
 
         root.style.setProperty("--theme-color", selectedTheme.color);
@@ -184,15 +186,15 @@
 
         root.style.setProperty(
           "--bg-color",
-          selectedTheme.bgColor || "#0f172a"
+          selectedTheme.bgColor || "#0f172a",
         );
         root.style.setProperty(
           "--panel-bg",
-          selectedTheme.panelBg || "#1e293b"
+          selectedTheme.panelBg || "#1e293b",
         );
         root.style.setProperty(
           "--text-white",
-          selectedTheme.textWhite || "#f1f5f9"
+          selectedTheme.textWhite || "#f1f5f9",
         );
       }
 
@@ -223,18 +225,27 @@
       mPart = mPart + 12.0;
       y = y - 1.0;
     }
+
+    // Perhitungan Julian Day
     var jd =
       Math.floor(365.25 * (y + 4716.0)) +
       Math.floor(30.6001 * (mPart + 1.0)) +
       d +
       adjust -
       1524.5;
+
     if (jd > 2299160.0) {
       var a = Math.floor((jd - 1867216.25) / 36524.25);
       jd = jd + 1 + a - Math.floor(a / 4.0);
     }
+
     var iyear = 10631.0 / 30.0;
     var epochastro = 1948084;
+
+    // Pembulatan JD di sini untuk membuang sisa desimal sebelum masuk ke loop Hijriah
+    // Menggunakan floor pada JD sebelum dikurangi epoch bisa membantu,
+    // tapi cara paling aman di JS adalah membulatkan hasil akhir 'id'.
+
     var z = jd - epochastro;
     var cyc = Math.floor(z / 10631.0);
     z = z - 10631.0 * cyc;
@@ -243,9 +254,14 @@
     z = z - Math.floor(j * iyear + 8.01 / 60.0);
     var im = Math.floor((z + 28.5001) / 29.5);
     if (im === 13) im = 12;
+
     var id = z - Math.floor(29.5 * im - 29.0001);
 
-    return { day: id, month: im - 1, year: iy };
+    return {
+      day: Math.floor(id), // <--- TAMBAHKAN Math.floor() DI SINI
+      month: im - 1,
+      year: iy,
+    };
   }
 
   function calculatePrayerTimes(dateObj) {
@@ -259,27 +275,27 @@
 
     prayerTimes.fajr = addMinutes(
       prayerTimes.fajr,
-      parseInt(config.tune_subuh) || 0
+      parseInt(config.tune_subuh) || 0,
     );
     prayerTimes.sunrise = addMinutes(
       prayerTimes.sunrise,
-      parseInt(config.tune_shuruq) || 0
+      parseInt(config.tune_shuruq) || 0,
     );
     prayerTimes.dhuhr = addMinutes(
       prayerTimes.dhuhr,
-      parseInt(config.tune_dzuhur) || 0
+      parseInt(config.tune_dzuhur) || 0,
     );
     prayerTimes.asr = addMinutes(
       prayerTimes.asr,
-      parseInt(config.tune_ashar) || 0
+      parseInt(config.tune_ashar) || 0,
     );
     prayerTimes.maghrib = addMinutes(
       prayerTimes.maghrib,
-      parseInt(config.tune_maghrib) || 0
+      parseInt(config.tune_maghrib) || 0,
     );
     prayerTimes.isha = addMinutes(
       prayerTimes.isha,
-      parseInt(config.tune_isya) || 0
+      parseInt(config.tune_isya) || 0,
     );
 
     els.times.subuh.innerHTML = formatTime(prayerTimes.fajr);
@@ -400,7 +416,7 @@
       }
 
       if (els.digital.hijri) {
-        var hData = getHijriDate(now, -1);
+        var hData = getHijriDate(now, config.hijri_offset);
         els.digital.hijri.innerHTML =
           hData.day + " " + monthsHijri[hData.month] + " " + hData.year + " H";
       }
