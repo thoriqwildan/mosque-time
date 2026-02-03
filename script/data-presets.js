@@ -1,5 +1,5 @@
 var logosList = [
-  "logo_default.png",
+  "logo1.png",
   "logo-muhammadiyah.png",
   "logo-nahdlatululama.png",
   "logo2.png",

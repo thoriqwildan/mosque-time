@@ -215,52 +215,29 @@
   }
 
   function getHijriDate(dateObj, adjustment) {
-    var adjust = adjustment || 0;
-    var d = dateObj.getDate();
-    var m = dateObj.getMonth();
-    var y = dateObj.getFullYear();
+    const adjustedDate = new Date(dateObj);
+    adjustedDate.setDate(adjustedDate.getDate() + (adjustment || 0));
 
-    var mPart = m - 2.0;
-    if (mPart < 1.0) {
-      mPart = mPart + 12.0;
-      y = y - 1.0;
-    }
+    const formatter = new Intl.DateTimeFormat(
+      "en-US-u-ca-islamic-umalqura-nu-latn",
+      {
+        day: "numeric",
+        month: "numeric",
+        year: "numeric",
+      },
+    );
 
-    // Perhitungan Julian Day
-    var jd =
-      Math.floor(365.25 * (y + 4716.0)) +
-      Math.floor(30.6001 * (mPart + 1.0)) +
-      d +
-      adjust -
-      1524.5;
+    const parts = formatter.formatToParts(adjustedDate);
 
-    if (jd > 2299160.0) {
-      var a = Math.floor((jd - 1867216.25) / 36524.25);
-      jd = jd + 1 + a - Math.floor(a / 4.0);
-    }
-
-    var iyear = 10631.0 / 30.0;
-    var epochastro = 1948084;
-
-    // Pembulatan JD di sini untuk membuang sisa desimal sebelum masuk ke loop Hijriah
-    // Menggunakan floor pada JD sebelum dikurangi epoch bisa membantu,
-    // tapi cara paling aman di JS adalah membulatkan hasil akhir 'id'.
-
-    var z = jd - epochastro;
-    var cyc = Math.floor(z / 10631.0);
-    z = z - 10631.0 * cyc;
-    var j = Math.floor((z - 8.01 / 60.0) / iyear);
-    var iy = 30 * cyc + j;
-    z = z - Math.floor(j * iyear + 8.01 / 60.0);
-    var im = Math.floor((z + 28.5001) / 29.5);
-    if (im === 13) im = 12;
-
-    var id = z - Math.floor(29.5 * im - 29.0001);
+    const getVal = (type) => {
+      const part = parts.find((p) => p.type === type);
+      return part ? parseInt(part.value, 10) : 0;
+    };
 
     return {
-      day: Math.floor(id), // <--- TAMBAHKAN Math.floor() DI SINI
-      month: im - 1,
-      year: iy,
+      day: getVal("day"),
+      month: getVal("month") - 1,
+      year: getVal("year"),
     };
   }
 
