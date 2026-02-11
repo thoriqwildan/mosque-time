@@ -97,7 +97,6 @@ function loadDataFromServer() {
       setValue("countdown_duration", data.countdown_duration);
 
       setValue("logo_index", data.logo_index || 0);
-      setValue("theme_id", data.theme_id || "gold");
       setValue("hijri_offset", data.hijri_offset || 0);
 
       window.currentServerOffset = data.time_offset || 0;
@@ -141,7 +140,6 @@ function saveAll() {
     time_offset: window.currentServerOffset || 0,
 
     logo_index: document.getElementById("logo_index").value,
-    theme_id: document.getElementById("theme_id").value,
 
     hijri_offset: document.getElementById("hijri_offset").value,
   };

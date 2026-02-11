@@ -14,7 +14,6 @@
     countdown_duration: 10,
     time_offset: 0,
     logo_index: 0,
-    theme_id: "gold",
     hijri_offset: 0,
   };
 
@@ -169,33 +168,6 @@
       ) {
         document.getElementById("masjid-logo").src = logoSrc;
         document.getElementById("masjid-logo-portrait").src = logoSrc;
-      }
-
-      if (
-        getComputedStyle(root)
-          .getPropertyValue("--bg-image")
-          .indexOf(selectedTheme.file) === -1
-      ) {
-        root.style.setProperty(
-          "--bg-image",
-          "url('../img/bg/" + selectedTheme.file + "')",
-        );
-
-        root.style.setProperty("--theme-color", selectedTheme.color);
-        root.style.setProperty("--theme-shadow", selectedTheme.shadow);
-
-        root.style.setProperty(
-          "--bg-color",
-          selectedTheme.bgColor || "#0f172a",
-        );
-        root.style.setProperty(
-          "--panel-bg",
-          selectedTheme.panelBg || "#1e293b",
-        );
-        root.style.setProperty(
-          "--text-white",
-          selectedTheme.textWhite || "#f1f5f9",
-        );
       }
 
       updateRunningText();
