@@ -36,30 +36,37 @@ function ajax(url, options, successCallback, errorCallback) {
 }
 
 function getHijriDate(dateObj, adjustment) {
-  const adjustedDate = new Date(dateObj);
-  adjustedDate.setDate(adjustedDate.getDate() + (adjustment || 0));
+  var date = new Date(dateObj.getTime());
+  date.setDate(date.getDate() + (adjustment || 0));
+  var d = date.getDate();
+  var m = date.getMonth();
+  var y = date.getFullYear();
 
-  const formatter = new Intl.DateTimeFormat(
-    "en-US-u-ca-islamic-umalqura-nu-latn",
-    {
-      day: "numeric",
-      month: "numeric",
-      year: "numeric",
-    },
-  );
+  var mPart = (m + 1 - 14) / 12;
+  var jd =
+    Math.floor((1461 * (y + 4800 + Math.floor(mPart))) / 4) +
+    Math.floor((367 * (m + 1 - 2 - 12 * Math.floor(mPart))) / 12) -
+    Math.floor((3 * Math.floor((y + 4900 + Math.floor(mPart)) / 100)) / 4) +
+    d -
+    32075;
 
-  const parts = formatter.formatToParts(adjustedDate);
+  var l = jd - 1948440 + 10632;
+  var n = Math.floor((l - 1) / 10631);
+  l = l - 10631 * n + 354;
+  var j =
+    Math.floor((10985 - l) / 5316) * Math.floor((50 * l) / 17719) +
+    Math.floor(l / 5670) * Math.floor((43 * l) / 15238);
+  l =
+    l -
+    Math.floor((30 - j) / 15) * Math.floor((17719 * j) / 50) -
+    Math.floor(j / 16) * Math.floor((15238 * j) / 43) +
+    29;
 
-  const getVal = (type) => {
-    const part = parts.find((p) => p.type === type);
-    return part ? parseInt(part.value, 10) : 0;
-  };
+  var mHijri = Math.floor((24 * l) / 709);
+  var dHijri = l - Math.floor((709 * mHijri) / 24);
+  var yHijri = 30 * n + j - 30;
 
-  return {
-    day: getVal("day"),
-    month: getVal("month") - 1,
-    year: getVal("year"),
-  };
+  return { day: dHijri, month: mHijri - 1, year: yHijri };
 }
 
 var monthsHijri = [

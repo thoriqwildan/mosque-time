@@ -1,12 +1,3 @@
-:root {
-  --theme-color: #ffd700;
-  --bg-color: #0f172a;
-  --panel-bg: #1e293b;
-  --text-white: #f1f5f9;
-  --theme-shadow: rgba(255, 215, 0, 0.5);
-  --bg-image: url("../img/bg/bg_default.png");
-}
-
 @font-face {
   font-family: "poppins";
   src: url("../fonts/Poppins-Regular.ttf");
@@ -24,6 +15,8 @@ body {
   padding: 0;
   overflow: hidden;
   background-color: #000;
+  /* Paksa GPU Rendering Global */
+  -webkit-transform: translateZ(0);
   transform: translateZ(0);
 }
 
@@ -36,6 +29,7 @@ body {
 .main-wrapper {
   width: 100%;
   height: 100%;
+  /* Flexbox Legacy Support */
   display: -webkit-box;
   display: -moz-box;
   display: -ms-flexbox;
@@ -52,7 +46,8 @@ body {
 .bg-left {
   position: relative;
   height: 100%;
-  background-color: var(--bg-color);
+  /* Default Fallback: #0f172a (Warna bg-color) */
+  background-color: #0f172a;
   z-index: 10;
 
   width: 30%;
@@ -69,7 +64,8 @@ body {
   right: -50px;
   width: 50px;
   height: 100%;
-  background-color: var(--bg-color);
+  /* Default Fallback */
+  background-color: #0f172a;
   border-radius: 0 100% 100% 0 / 0 50% 50% 0;
   z-index: -1;
 
@@ -85,11 +81,16 @@ body {
 .schedule-item {
   height: 16.666%;
   width: 100%;
-  color: var(--text-white);
+  /* Default Fallback: #f1f5f9 (Warna text-white) */
+  color: #f1f5f9;
   border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 
-  -webkit-transition: background-color 0.5s, -webkit-transform 0.3s;
-  transition: background-color 0.5s, transform 0.3s;
+  -webkit-transition:
+    background-color 0.5s,
+    -webkit-transform 0.3s;
+  transition:
+    background-color 0.5s,
+    transform 0.3s;
 
   display: table;
   padding: 0 0 0 10%;
@@ -102,16 +103,20 @@ body {
 
 .schedule-item.active {
   background-color: rgba(255, 215, 0, 0.2);
-  box-shadow: inset 5px 0 0 0 var(--theme-color);
+  /* Default Fallback: #ffd700 (Warna theme-color) */
+  box-shadow: inset 5px 0 0 0 #ffd700;
 }
 
 .schedule-item.active .schedule-text span {
-  color: var(--theme-color);
+  /* Default Fallback */
+  color: #ffd700;
 }
 
 .schedule-item.active .schedule-text h1 {
-  color: var(--text-white);
-  text-shadow: 0 0 10px var(--theme-shadow);
+  /* Default Fallback */
+  color: #f1f5f9;
+  /* Default Fallback Shadow */
+  text-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
 }
 
 .schedule-text {
@@ -161,7 +166,8 @@ body {
 
 .title-card {
   width: 100%;
-  background-color: var(--panel-bg);
+  /* Default Fallback: #1e293b (Warna panel-bg) */
+  background-color: #1e293b;
   overflow: hidden;
 
   height: 25%;
@@ -178,7 +184,8 @@ body {
   vertical-align: middle;
   text-align: right;
   font-family: "poppins", Arial, Helvetica, sans-serif;
-  color: var(--text-white);
+  /* Default Fallback */
+  color: #f1f5f9;
 }
 
 .title h1 {
@@ -235,7 +242,8 @@ body {
   -ms-flex: 1;
   flex: 1;
 
-  background-image: var(--bg-image);
+  /* Default Fallback Image */
+  background-image: url("../img/bg/bg_default.png");
   background-repeat: no-repeat;
   background-position: center center;
   -webkit-background-size: cover;
@@ -267,7 +275,8 @@ body {
   width: 100%;
   height: 100%;
   background-color: rgba(255, 255, 255, 0.97);
-  border: 10px solid var(--panel-bg);
+  /* Default Fallback Border */
+  border: 10px solid #1e293b;
 
   -webkit-border-radius: 50%;
   -moz-border-radius: 50%;
@@ -305,7 +314,8 @@ body {
   margin-top: -9px;
   margin-left: -9px;
   background-color: #ef4444; /* Merah */
-  border: 2px solid var(--text-white);
+  /* Default Fallback Border */
+  border: 2px solid #f1f5f9;
 
   -webkit-border-radius: 50%;
   -moz-border-radius: 50%;
@@ -324,6 +334,10 @@ body {
   border-radius: 4px;
 
   box-shadow: none;
+  /* Optimasi GPU Wajib untuk RSB-3410 */
+  -webkit-transform: translateZ(0);
+  transform: translateZ(0);
+  will-change: transform;
 }
 
 .hour-hand {
@@ -355,7 +369,8 @@ body {
   position: fixed;
   bottom: 10px;
   right: 10px;
-  color: var(--text-white);
+  /* Default Fallback */
+  color: #f1f5f9;
   z-index: 1000;
   opacity: 0;
 }
@@ -383,7 +398,8 @@ body {
 
 .marquee-text {
   white-space: nowrap;
-  color: var(--text-white);
+  /* Default Fallback */
+  color: #f1f5f9;
   font-family: "poppins", Arial, Helvetica, sans-serif;
   font-size: 1.7vw;
   font-weight: 500;
@@ -391,6 +407,7 @@ body {
   display: inline-block;
   padding-left: 100%;
   animation: marquee 20s linear infinite;
+  -webkit-animation: marquee 20s linear infinite;
 }
 
 #countdown-overlay {
@@ -439,8 +456,9 @@ body {
   text-align: center;
   margin: 0;
   line-height: 1;
-  color: var(--theme-color);
-  text-shadow: 0 0 30px var(--theme-shadow);
+  /* Default Fallback */
+  color: #ffd700;
+  text-shadow: 0 0 30px rgba(255, 215, 0, 0.5);
 }
 
 #cd-next-prayer {
@@ -457,7 +475,8 @@ body {
   top: 25%;
   margin-right: 10px;
   text-align: right;
-  color: var(--text-white);
+  /* Default Fallback */
+  color: #f1f5f9;
   text-shadow: 0 2px 4px rgba(0, 0, 0, 0.8);
   z-index: 9999;
 }
@@ -467,7 +486,8 @@ body {
   font-size: 5vw;
   margin: 0;
   line-height: 1;
-  color: var(--theme-color);
+  /* Default Fallback */
+  color: #ffd700;
   letter-spacing: 2px;
 }
 
@@ -475,14 +495,16 @@ body {
   font-family: "poppins", sans-serif;
   font-size: 1.3vw;
   margin-top: 10px;
-  background-color: var(--panel-bg);
+  /* Default Fallback */
+  background-color: #1e293b;
   padding: 5px 15px;
   border-radius: 20px;
   display: inline-block;
 }
 
 .separator {
-  color: var(--theme-color);
+  /* Default Fallback */
+  color: #ffd700;
   margin: 0 10px;
   font-weight: bold;
 }
@@ -514,6 +536,7 @@ body {
   }
 }
 
+/* MODE POTRAIT */
 @media screen and (orientation: portrait) {
   .main-wrapper {
     -webkit-box-orient: vertical;
@@ -532,7 +555,7 @@ body {
     position: absolute;
     top: 65%;
     text-align: center;
-    color: var(--text-white);
+    color: #f1f5f9;
     text-shadow: 0 2px 4px rgba(0, 0, 0, 0.8);
     z-index: 9999;
   }
@@ -543,7 +566,7 @@ body {
     font-size: 5vw;
     margin: 0;
     line-height: 1;
-    color: var(--theme-color);
+    color: #ffd700;
     letter-spacing: 2px;
   }
 
@@ -576,7 +599,8 @@ body {
     height: 25%;
     width: 100%;
     background: #1e283b;
-    border-bottom: 4px solid var(--theme-color);
+    /* Hardcode border-color */
+    border-bottom: 4px solid #ffd700;
   }
 
   .title h1 {
@@ -693,11 +717,12 @@ body {
   }
 
   .schedule-item.active {
-    background-color: var(--theme-color);
+    /* Hardcode Colors */
+    background-color: #ffd700;
     border: none;
     padding: 10px;
 
-    box-shadow: 0 0 20px var(--theme-shadow);
+    box-shadow: 0 0 20px rgba(255, 215, 0, 0.5);
     z-index: 2;
     transform: scale(1.05);
   }
@@ -715,7 +740,8 @@ body {
     bottom: 0;
     height: 4vh;
     background: #000;
-    border-top: 4px solid var(--theme-color);
+    /* Hardcode Color */
+    border-top: 4px solid #ffd700;
 
     z-index: 100;
   }

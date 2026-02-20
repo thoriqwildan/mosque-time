@@ -87,6 +87,8 @@
 
   var currentPrayerData = null;
   var lastActivePrayer = "";
+  var lastAppliedThemeId = null;
+  var lastCalcState = "";
   var lastDay = -1;
   var lastRunningText = "";
   var lastCountdownState = false;
@@ -151,10 +153,13 @@
 
       var logoIndex = parseInt(config.logo_index) || 0;
       var themeId = config.theme_id || "gold";
-      var selectedTheme =
-        themesList.find(function (t) {
-          return t.id === themeId;
-        }) || themesList[0];
+      var selectedTheme = themesList[0];
+      for (var i = 0; i < themesList.length; i++) {
+        if (themesList[i].id === themeId) {
+          selectedTheme = themesList[i];
+          break;
+        }
+      }
 
       if (els.masjid.innerHTML !== config.mosque_name)
         els.masjid.innerHTML = config.mosque_name;
@@ -171,37 +176,76 @@
         document.getElementById("masjid-logo-portrait").src = logoSrc;
       }
 
-      if (
-        getComputedStyle(root)
-          .getPropertyValue("--bg-image")
-          .indexOf(selectedTheme.file) === -1
-      ) {
-        root.style.setProperty(
-          "--bg-image",
-          "url('../img/bg/" + selectedTheme.file + "')",
-        );
+      if (lastAppliedThemeId !== themeId) {
+        var dynamicStyle = document.getElementById("dynamic-theme");
+        var themeCss =
+          ".bg-left { background-color: " +
+          selectedTheme.bgColor +
+          "; }" +
+          ".bg-left::after { background-color: " +
+          selectedTheme.bgColor +
+          "; }" +
+          ".title-card { background-color: " +
+          selectedTheme.panelBg +
+          "; }" +
+          ".bg-card { background-image: url('../img/bg/" +
+          selectedTheme.file +
+          "'); }" +
+          ".schedule-item.active { background-color: " +
+          selectedTheme.shadow +
+          "; box-shadow: inset 5px 0 0 0 " +
+          selectedTheme.color +
+          "; }" +
+          ".schedule-item.active .schedule-text span { color: " +
+          selectedTheme.color +
+          "; }" +
+          ".schedule-item.active .schedule-text h1 { color: " +
+          (selectedTheme.textWhite || "#fff") +
+          "; text-shadow: 0 0 10px " +
+          selectedTheme.shadow +
+          "; }" +
+          "#cd-timer, #digital-clock { color: " +
+          selectedTheme.color +
+          "; text-shadow: 0 0 30px " +
+          selectedTheme.shadow +
+          "; }" +
+          ".date-wrapper { background-color: " +
+          selectedTheme.panelBg +
+          "; }" +
+          ".separator { color: " +
+          selectedTheme.color +
+          "; }";
 
-        root.style.setProperty("--theme-color", selectedTheme.color);
-        root.style.setProperty("--theme-shadow", selectedTheme.shadow);
-
-        root.style.setProperty(
-          "--bg-color",
-          selectedTheme.bgColor || "#0f172a",
-        );
-        root.style.setProperty(
-          "--panel-bg",
-          selectedTheme.panelBg || "#1e293b",
-        );
-        root.style.setProperty(
-          "--text-white",
-          selectedTheme.textWhite || "#f1f5f9",
-        );
+        dynamicStyle.innerHTML = themeCss;
+        lastAppliedThemeId = themeId;
       }
 
       updateRunningText();
 
-      lastDay = -1;
-      slowTick();
+      var currentCalcState =
+        config.latitude +
+        "|" +
+        config.longitude +
+        "|" +
+        config.tune_subuh +
+        "|" +
+        config.tune_shuruq +
+        "|" +
+        config.tune_dzuhur +
+        "|" +
+        config.tune_ashar +
+        "|" +
+        config.tune_maghrib +
+        "|" +
+        config.tune_isya +
+        "|" +
+        config.hijri_offset;
+
+      if (currentCalcState !== lastCalcState) {
+        lastDay = -1;
+        slowTick();
+        lastCalcState = currentCalcState;
+      }
     });
   }
 
@@ -215,30 +259,37 @@
   }
 
   function getHijriDate(dateObj, adjustment) {
-    const adjustedDate = new Date(dateObj);
-    adjustedDate.setDate(adjustedDate.getDate() + (adjustment || 0));
+    var date = new Date(dateObj.getTime());
+    date.setDate(date.getDate() + (adjustment || 0));
+    var d = date.getDate();
+    var m = date.getMonth();
+    var y = date.getFullYear();
 
-    const formatter = new Intl.DateTimeFormat(
-      "en-US-u-ca-islamic-umalqura-nu-latn",
-      {
-        day: "numeric",
-        month: "numeric",
-        year: "numeric",
-      },
-    );
+    var mPart = (m + 1 - 14) / 12;
+    var jd =
+      Math.floor((1461 * (y + 4800 + Math.floor(mPart))) / 4) +
+      Math.floor((367 * (m + 1 - 2 - 12 * Math.floor(mPart))) / 12) -
+      Math.floor((3 * Math.floor((y + 4900 + Math.floor(mPart)) / 100)) / 4) +
+      d -
+      32075;
 
-    const parts = formatter.formatToParts(adjustedDate);
+    var l = jd - 1948440 + 10632;
+    var n = Math.floor((l - 1) / 10631);
+    l = l - 10631 * n + 354;
+    var j =
+      Math.floor((10985 - l) / 5316) * Math.floor((50 * l) / 17719) +
+      Math.floor(l / 5670) * Math.floor((43 * l) / 15238);
+    l =
+      l -
+      Math.floor((30 - j) / 15) * Math.floor((17719 * j) / 50) -
+      Math.floor(j / 16) * Math.floor((15238 * j) / 43) +
+      29;
 
-    const getVal = (type) => {
-      const part = parts.find((p) => p.type === type);
-      return part ? parseInt(part.value, 10) : 0;
-    };
+    var mHijri = Math.floor((24 * l) / 709);
+    var dHijri = l - Math.floor((709 * mHijri) / 24);
+    var yHijri = 30 * n + j - 30;
 
-    return {
-      day: getVal("day"),
-      month: getVal("month") - 1,
-      year: getVal("year"),
-    };
+    return { day: dHijri, month: mHijri - 1, year: yHijri };
   }
 
   function calculatePrayerTimes(dateObj) {
