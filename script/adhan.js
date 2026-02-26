@@ -1,23 +1,25 @@
+// prettier-ignore
 !(function (t, e) {
   "object" == typeof exports && "undefined" != typeof module
     ? e(exports)
     : "function" == typeof define && define.amd
-    ? define(["exports"], e)
-    : e(
-        ((t = "undefined" != typeof globalThis ? globalThis : t || self).adhan =
-          {})
-      );
+      ? define(["exports"], e)
+      : e(
+          ((t =
+            "undefined" != typeof globalThis ? globalThis : t || self).adhan =
+            {})
+        );
 })(this, function (t) {
   "use strict";
   function e(t, e) {
     var n = Object.keys(t);
     if (Object.getOwnPropertySymbols) {
       var r = Object.getOwnPropertySymbols(t);
-      e &&
+      (e &&
         (r = r.filter(function (e) {
           return Object.getOwnPropertyDescriptor(t, e).enumerable;
         })),
-        n.push.apply(n, r);
+        n.push.apply(n, r));
     }
     return n;
   }
@@ -29,10 +31,14 @@
             s(t, e, r[e]);
           })
         : Object.getOwnPropertyDescriptors
-        ? Object.defineProperties(t, Object.getOwnPropertyDescriptors(r))
-        : e(Object(r)).forEach(function (e) {
-            Object.defineProperty(t, e, Object.getOwnPropertyDescriptor(r, e));
-          });
+          ? Object.defineProperties(t, Object.getOwnPropertyDescriptors(r))
+          : e(Object(r)).forEach(function (e) {
+              Object.defineProperty(
+                t,
+                e,
+                Object.getOwnPropertyDescriptor(r, e)
+              );
+            });
     }
     return t;
   }
@@ -43,10 +49,10 @@
   function a(t, e) {
     for (var n = 0; n < e.length; n++) {
       var r = e[n];
-      (r.enumerable = r.enumerable || !1),
+      ((r.enumerable = r.enumerable || !1),
         (r.configurable = !0),
         "value" in r && (r.writable = !0),
-        Object.defineProperty(t, r.key, r);
+        Object.defineProperty(t, r.key, r));
     }
   }
   function i(t, e, n) {
@@ -80,7 +86,7 @@
       },
     },
     u = i(function t(e, n) {
-      r(this, t), (this.latitude = e), (this.longitude = n);
+      (r(this, t), (this.latitude = e), (this.longitude = n));
     }),
     l = { Nearest: "nearest", Up: "up", None: "none" };
   function d(t, e) {
@@ -105,7 +111,7 @@
           : l.Nearest,
       n = t.getUTCSeconds(),
       r = n >= 30 ? 60 - n : -1 * n;
-    return e === l.Up ? (r = 60 - n) : e === l.None && (r = 0), g(t, r);
+    return (e === l.Up ? (r = 60 - n) : e === l.None && (r = 0), g(t, r));
   }
   function m(t) {
     for (
@@ -325,14 +331,14 @@
             (a = j.daysSinceSolstice(e, n, t)) < 91
               ? i + ((s - i) / 91) * a
               : a < 137
-              ? s + ((o - s) / 46) * (a - 91)
-              : a < 183
-              ? o + ((h - o) / 46) * (a - 137)
-              : a < 229
-              ? h + ((o - h) / 46) * (a - 183)
-              : a < 275
-              ? o + ((s - o) / 46) * (a - 229)
-              : s + ((i - s) / 91) * (a - 275);
+                ? s + ((o - s) / 46) * (a - 91)
+                : a < 183
+                  ? o + ((h - o) / 46) * (a - 137)
+                  : a < 229
+                    ? h + ((o - h) / 46) * (a - 183)
+                    : a < 275
+                      ? o + ((s - o) / 46) * (a - 229)
+                      : s + ((i - s) / 91) * (a - 275);
         return g(r, Math.round(-60 * u));
       },
       seasonAdjustedEveningTwilight: function (t, e, n, r, a) {
@@ -343,27 +349,27 @@
             (o = 62 + (5.12 / 55) * Math.abs(t)),
             (h = 62 + (19.44 / 55) * Math.abs(t)))
           : a === A.Abyad
-          ? ((i = 75 + (25.6 / 55) * Math.abs(t)),
-            (s = 75 + (7.16 / 55) * Math.abs(t)),
-            (o = 75 + (36.84 / 55) * Math.abs(t)),
-            (h = 75 + 1.488 * Math.abs(t)))
-          : ((i = 75 + (25.6 / 55) * Math.abs(t)),
-            (s = 75 + (2.05 / 55) * Math.abs(t)),
-            (o = 75 - (9.21 / 55) * Math.abs(t)),
-            (h = 75 + (6.14 / 55) * Math.abs(t)));
+            ? ((i = 75 + (25.6 / 55) * Math.abs(t)),
+              (s = 75 + (7.16 / 55) * Math.abs(t)),
+              (o = 75 + (36.84 / 55) * Math.abs(t)),
+              (h = 75 + 1.488 * Math.abs(t)))
+            : ((i = 75 + (25.6 / 55) * Math.abs(t)),
+              (s = 75 + (2.05 / 55) * Math.abs(t)),
+              (o = 75 - (9.21 / 55) * Math.abs(t)),
+              (h = 75 + (6.14 / 55) * Math.abs(t)));
         var u,
           l =
             (u = j.daysSinceSolstice(e, n, t)) < 91
               ? i + ((s - i) / 91) * u
               : u < 137
-              ? s + ((o - s) / 46) * (u - 91)
-              : u < 183
-              ? o + ((h - o) / 46) * (u - 137)
-              : u < 229
-              ? h + ((o - h) / 46) * (u - 183)
-              : u < 275
-              ? o + ((s - o) / 46) * (u - 229)
-              : s + ((i - s) / 91) * (u - 275);
+                ? s + ((o - s) / 46) * (u - 91)
+                : u < 183
+                  ? o + ((h - o) / 46) * (u - 137)
+                  : u < 229
+                    ? h + ((o - h) / 46) * (u - 183)
+                    : u < 275
+                      ? o + ((s - o) / 46) * (u - 229)
+                      : s + ((i - s) / 91) * (u - 275);
         return g(r, Math.round(60 * l));
       },
       daysSinceSolstice: function (t, e, n) {
@@ -390,28 +396,28 @@
         l = j.nutationInObliquity(n, a, i, s),
         d = j.meanObliquityOfTheEcliptic(n),
         c = v(j.apparentObliquityOfTheEcliptic(n, d));
-      (this.declination = p(Math.asin(Math.sin(c) * Math.sin(o)))),
+      ((this.declination = p(Math.asin(Math.sin(c) * Math.sin(o)))),
         (this.rightAscension = w(
           p(Math.atan2(Math.cos(c) * Math.sin(o), Math.cos(o)))
         )),
         (this.apparentSiderealTime =
-          h + (3600 * u * Math.cos(v(d + l))) / 3600);
+          h + (3600 * u * Math.cos(v(d + l))) / 3600));
     }),
     T = (function () {
       function t(e, n) {
         r(this, t);
         var a = j.julianDay(e.getFullYear(), e.getMonth() + 1, e.getDate(), 0);
-        (this.observer = n),
+        ((this.observer = n),
           (this.solar = new y(a)),
           (this.prevSolar = new y(a - 1)),
-          (this.nextSolar = new y(a + 1));
+          (this.nextSolar = new y(a + 1)));
         var i = j.approximateTransit(
             n.longitude,
             this.solar.apparentSiderealTime,
             this.solar.rightAscension
-          ),
+          )
           s = -50 / 60;
-        (this.approxTransit = i),
+        ((this.approxTransit = i),
           (this.transit = j.correctedTransit(
             i,
             n.longitude,
@@ -445,7 +451,7 @@
             this.solar.declination,
             this.prevSolar.declination,
             this.nextSolar.declination
-          ));
+          )));
       }
       return (
         i(t, [
@@ -521,8 +527,8 @@
             tomorrowSolarTime: o,
           }
         : Math.abs(a) >= 65
-        ? t(e, r, a - 0.5 * Math.sign(a))
-        : null;
+          ? t(e, r, a - 0.5 * Math.sign(a))
+          : null;
     },
     P = function (t, e, n) {
       var r = {
@@ -552,7 +558,7 @@
             arguments.length > 3 && void 0 !== arguments[3] ? arguments[3] : 0,
           u =
             arguments.length > 4 && void 0 !== arguments[4] ? arguments[4] : 0;
-        r(this, t),
+        (r(this, t),
           s(this, "madhab", o.Shafi),
           s(this, "highLatitudeRule", h.MiddleOfTheNight),
           s(this, "adjustments", {
@@ -579,7 +585,7 @@
           (this.ishaAngle = a),
           (this.ishaInterval = i),
           (this.maghribAngle = u),
-          null === this.method && (this.method = "Other");
+          null === this.method && (this.method = "Other"));
       }
       return (
         i(t, [
@@ -610,15 +616,15 @@
     C = {
       MuslimWorldLeague: function () {
         var t = new L("MuslimWorldLeague", 18, 17);
-        return (t.methodAdjustments.dhuhr = 1), t;
+        return ((t.methodAdjustments.dhuhr = 1), t);
       },
       Egyptian: function () {
         var t = new L("Egyptian", 19.5, 17.5);
-        return (t.methodAdjustments.dhuhr = 1), t;
+        return ((t.methodAdjustments.dhuhr = 1), t);
       },
       Karachi: function () {
         var t = new L("Karachi", 18, 18);
-        return (t.methodAdjustments.dhuhr = 1), t;
+        return ((t.methodAdjustments.dhuhr = 1), t);
       },
       UmmAlQura: function () {
         return new L("UmmAlQura", 18.5, 0, 90);
@@ -647,7 +653,7 @@
       },
       NorthAmerica: function () {
         var t = new L("NorthAmerica", 15, 15);
-        return (t.methodAdjustments.dhuhr = 1), t;
+        return ((t.methodAdjustments.dhuhr = 1), t);
       },
       Kuwait: function () {
         return new L("Kuwait", 18, 17.5);
@@ -657,7 +663,7 @@
       },
       Singapore: function () {
         var t = new L("Singapore", 20, 18);
-        return (t.methodAdjustments.dhuhr = 1), (t.rounding = l.Up), t;
+        return ((t.methodAdjustments.dhuhr = 1), (t.rounding = l.Up), t);
       },
       Tehran: function () {
         return new L("Tehran", 17.7, 14, 0, 4.5);
@@ -714,10 +720,10 @@
     })(),
     q = (function () {
       function t(e, n, a) {
-        r(this, t),
+        (r(this, t),
           (this.coordinates = e),
           (this.date = n),
-          (this.calculationParameters = a);
+          (this.calculationParameters = a));
         var i,
           s,
           h,
@@ -726,7 +732,7 @@
           v,
           p,
           b = new T(n, e);
-        (h = new F(b.transit).utcDate(
+        ((h = new F(b.transit).utcDate(
           n.getFullYear(),
           n.getMonth(),
           n.getDate()
@@ -740,7 +746,7 @@
             n.getFullYear(),
             n.getMonth(),
             n.getDate()
-          ));
+          )));
         var w = d(n, 1),
           A = new T(w, e),
           y = a.polarCircleResolution;
@@ -749,11 +755,11 @@
             D,
             N,
             L = P(y, n, e);
-          (b = L.solarTime), (A = L.tomorrowSolarTime);
+          ((b = L.solarTime), (A = L.tomorrowSolarTime));
           var C = [n.getFullYear(), n.getMonth(), n.getDate()];
-          (h = (O = new F(b.transit)).utcDate.apply(O, C)),
+          ((h = (O = new F(b.transit)).utcDate.apply(O, C)),
             (s = (D = new F(b.sunrise)).utcDate.apply(D, C)),
-            (l = (N = new F(b.sunset)).utcDate.apply(N, C));
+            (l = (N = new F(b.sunset)).utcDate.apply(N, C)));
         }
         u = new F(
           b.afternoon(
@@ -775,14 +781,14 @@
             w.getDate()
           ),
           q = (Number(Y) - Number(l)) / 1e3;
-        (i = new F(b.hourAngle(-1 * a.fajrAngle, !1)).utcDate(
+        ((i = new F(b.hourAngle(-1 * a.fajrAngle, !1)).utcDate(
           n.getFullYear(),
           n.getMonth(),
           n.getDate()
         )),
           "MoonsightingCommittee" === a.method &&
             e.latitude >= 55 &&
-            (i = g(s, -(q / 7)));
+            (i = g(s, -(q / 7))));
         var x = (function () {
           if ("MoonsightingCommittee" === a.method)
             return j.seasonAdjustedMorningTwilight(
@@ -797,14 +803,14 @@
         if (((isNaN(i.getTime()) || x > i) && (i = x), a.ishaInterval > 0))
           p = c(l, a.ishaInterval);
         else {
-          (p = new F(b.hourAngle(-1 * a.ishaAngle, !0)).utcDate(
+          ((p = new F(b.hourAngle(-1 * a.ishaAngle, !0)).utcDate(
             n.getFullYear(),
             n.getMonth(),
             n.getDate()
           )),
             "MoonsightingCommittee" === a.method &&
               e.latitude >= 55 &&
-              (p = g(l, q / 7));
+              (p = g(l, q / 7)));
           var I = (function () {
             if ("MoonsightingCommittee" === a.method)
               return j.seasonAdjustedEveningTwilight(
@@ -833,13 +839,13 @@
           R = (a.adjustments.asr || 0) + (a.methodAdjustments.asr || 0),
           B = (a.adjustments.maghrib || 0) + (a.methodAdjustments.maghrib || 0),
           Q = (a.adjustments.isha || 0) + (a.methodAdjustments.isha || 0);
-        (this.fajr = f(c(i, k), a.rounding)),
+        ((this.fajr = f(c(i, k), a.rounding)),
           (this.sunrise = f(c(s, U), a.rounding)),
           (this.dhuhr = f(c(h, H), a.rounding)),
           (this.asr = f(c(u, R), a.rounding)),
           (this.sunset = f(l, a.rounding)),
           (this.maghrib = f(c(v, B), a.rounding)),
-          (this.isha = f(c(p, Q), a.rounding));
+          (this.isha = f(c(p, Q), a.rounding)));
       }
       return (
         i(t, [
@@ -849,16 +855,16 @@
               return t === Y.Fajr
                 ? this.fajr
                 : t === Y.Sunrise
-                ? this.sunrise
-                : t === Y.Dhuhr
-                ? this.dhuhr
-                : t === Y.Asr
-                ? this.asr
-                : t === Y.Maghrib
-                ? this.maghrib
-                : t === Y.Isha
-                ? this.isha
-                : null;
+                  ? this.sunrise
+                  : t === Y.Dhuhr
+                    ? this.dhuhr
+                    : t === Y.Asr
+                      ? this.asr
+                      : t === Y.Maghrib
+                        ? this.maghrib
+                        : t === Y.Isha
+                          ? this.isha
+                          : null;
             },
           },
           {
@@ -871,16 +877,16 @@
               return t >= this.isha
                 ? Y.Isha
                 : t >= this.maghrib
-                ? Y.Maghrib
-                : t >= this.asr
-                ? Y.Asr
-                : t >= this.dhuhr
-                ? Y.Dhuhr
-                : t >= this.sunrise
-                ? Y.Sunrise
-                : t >= this.fajr
-                ? Y.Fajr
-                : Y.None;
+                  ? Y.Maghrib
+                  : t >= this.asr
+                    ? Y.Asr
+                    : t >= this.dhuhr
+                      ? Y.Dhuhr
+                      : t >= this.sunrise
+                        ? Y.Sunrise
+                        : t >= this.fajr
+                          ? Y.Fajr
+                          : Y.None;
             },
           },
           {
@@ -893,16 +899,16 @@
               return t >= this.isha
                 ? Y.None
                 : t >= this.maghrib
-                ? Y.Isha
-                : t >= this.asr
-                ? Y.Maghrib
-                : t >= this.dhuhr
-                ? Y.Asr
-                : t >= this.sunrise
-                ? Y.Dhuhr
-                : t >= this.fajr
-                ? Y.Sunrise
-                : Y.Fajr;
+                  ? Y.Isha
+                  : t >= this.asr
+                    ? Y.Maghrib
+                    : t >= this.dhuhr
+                      ? Y.Asr
+                      : t >= this.sunrise
+                        ? Y.Dhuhr
+                        : t >= this.fajr
+                          ? Y.Sunrise
+                          : Y.Fajr;
             },
           },
         ]),
@@ -916,10 +922,10 @@
         (new q(e.coordinates, n, e.calculationParameters).fajr.getTime() -
           e.maghrib.getTime()) /
         1e3;
-    (this.middleOfTheNight = f(g(e.maghrib, a / 2))),
-      (this.lastThirdOfTheNight = f(g(e.maghrib, a * (2 / 3))));
+    ((this.middleOfTheNight = f(g(e.maghrib, a / 2))),
+      (this.lastThirdOfTheNight = f(g(e.maghrib, a * (2 / 3)))));
   });
-  (t.CalculationMethod = C),
+  ((t.CalculationMethod = C),
     (t.CalculationParameters = L),
     (t.Coordinates = u),
     (t.HighLatitudeRule = h),
@@ -937,6 +943,5 @@
     (t.Rounding = l),
     (t.Shafaq = A),
     (t.SunnahTimes = x),
-    Object.defineProperty(t, "__esModule", { value: !0 });
+    Object.defineProperty(t, "__esModule", { value: !0 }));
 });
-//# sourceMappingURL=adhan.umd.min.js.map

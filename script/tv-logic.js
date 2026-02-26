@@ -1,3 +1,15 @@
+// prettier-ignore
+if (!Math.trunc) {
+  Math.trunc = function (v) {
+    return v < 0 ? Math.ceil(v) : Math.floor(v);
+  };
+}
+if (!Math.sign) {
+  Math.sign = function (x) {
+    return (x > 0) - (x < 0) || +x;
+  };
+}
+
 (function () {
   var config = {
     mosque_name: "Loading...",
@@ -303,27 +315,27 @@
 
     prayerTimes.fajr = addMinutes(
       prayerTimes.fajr,
-      parseInt(config.tune_subuh) || 0,
+      parseInt(config.tune_subuh) || 0
     );
     prayerTimes.sunrise = addMinutes(
       prayerTimes.sunrise,
-      parseInt(config.tune_shuruq) || 0,
+      parseInt(config.tune_shuruq) || 0
     );
     prayerTimes.dhuhr = addMinutes(
       prayerTimes.dhuhr,
-      parseInt(config.tune_dzuhur) || 0,
+      parseInt(config.tune_dzuhur) || 0
     );
     prayerTimes.asr = addMinutes(
       prayerTimes.asr,
-      parseInt(config.tune_ashar) || 0,
+      parseInt(config.tune_ashar) || 0
     );
     prayerTimes.maghrib = addMinutes(
       prayerTimes.maghrib,
-      parseInt(config.tune_maghrib) || 0,
+      parseInt(config.tune_maghrib) || 0
     );
     prayerTimes.isha = addMinutes(
       prayerTimes.isha,
-      parseInt(config.tune_isya) || 0,
+      parseInt(config.tune_isya) || 0
     );
 
     els.times.subuh.innerHTML = formatTime(prayerTimes.fajr);
@@ -384,7 +396,7 @@
             dhuhr: "DZUHUR",
             asr: "ASHAR",
             maghrib: "MAGHRIB",
-            isha: "ISYA",
+            isha: "ISYA"
           };
           els.countdown.nextName.innerHTML = mapName[next];
         }

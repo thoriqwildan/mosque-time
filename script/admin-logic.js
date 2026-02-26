@@ -1,3 +1,14 @@
+if (!Math.trunc) {
+  Math.trunc = function (v) {
+    return v < 0 ? Math.ceil(v) : Math.floor(v);
+  };
+}
+if (!Math.sign) {
+  Math.sign = function (x) {
+    return (x > 0) - (x < 0) || +x;
+  };
+}
+
 window.onload = function () {
   loadDataFromServer();
 };
@@ -113,7 +124,7 @@ function loadDataFromServer() {
     function (error) {
       console.error("Error:", error);
       alert("Gagal mengambil data dari board.");
-    },
+    }
   );
 }
 
@@ -150,7 +161,7 @@ function saveAll() {
     logo_index: document.getElementById("logo_index").value,
     theme_id: document.getElementById("theme_id").value,
 
-    hijri_offset: document.getElementById("hijri_offset").value,
+    hijri_offset: document.getElementById("hijri_offset").value
   };
 
   ajax(
@@ -158,7 +169,7 @@ function saveAll() {
     {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(data),
+      body: JSON.stringify(data)
     },
     function (result) {
       if (result.status === "success") {
@@ -169,7 +180,7 @@ function saveAll() {
     },
     function (error) {
       alert("❌ Error koneksi ke server.");
-    },
+    }
   );
 }
 
@@ -185,7 +196,7 @@ function autoDetect() {
       },
       function (error) {
         alert("Gagal mendeteksi lokasi. Pastikan GPS aktif.");
-      },
+      }
     );
   } else {
     alert("Browser tidak mendukung Geolocation.");
@@ -218,7 +229,7 @@ function timeCalibration() {
   alert(
     "Sinkronisasi dihitung! Offset: " +
       diffMinutes +
-      " menit. \nKLIK 'SIMPAN SEMUA PENGATURAN' AGAR PERMANEN.",
+      " menit. \nKLIK 'SIMPAN SEMUA PENGATURAN' AGAR PERMANEN."
   );
 }
 
