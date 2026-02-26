@@ -1,8 +1,11 @@
 var logosList = [
   "logo1.png",
+  "logo2.png",
   "logo-muhammadiyah.png",
   "logo-nahdlatululama.png",
-  "logo2.png",
+  "logo-ldii.png",
+  "logo-persis.png",
+  "logo-alirsyad-islamiyah.png",
 ];
 
 var themesList = [
